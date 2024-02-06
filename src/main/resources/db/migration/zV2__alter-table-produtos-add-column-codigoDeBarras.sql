@@ -1,0 +1,1 @@
+alter table produtos add codigoDeBarras varchar(200);
