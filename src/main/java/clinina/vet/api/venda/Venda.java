@@ -26,5 +26,15 @@ public class Venda {
     private Double precoTotal;
     private String peso;
     private Date data;
+    private String pagamento;
+    private Long iddevenda;
+
+    //Esse @Transient é para avisar pro spring ignorar esse campo pq não é uma coluna, é só pra usar esses dados mesmo
+    @Transient
+    private String nome;
+    @Transient
+    private String telefone;
+    @Transient
+    private String endereco;
 
 }

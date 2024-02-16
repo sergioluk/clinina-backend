@@ -1,6 +1,10 @@
 package clinina.vet.api.controller;
 
 import clinina.vet.api.Idade.DadosCadastroIdade;
+import clinina.vet.api.fiado.DadoListagemFiado;
+import clinina.vet.api.fiado.DadosEditarFiado;
+import clinina.vet.api.fiado.Fiado;
+import clinina.vet.api.fiado.FiadoRepository;
 import clinina.vet.api.fornecedor.DadosCadastroFornecedor;
 import clinina.vet.api.Idade.IdadeRepository;
 import clinina.vet.api.Idade.IdadeService;
@@ -14,12 +18,14 @@ import clinina.vet.api.sabor.DadosCadastroSabor;
 import clinina.vet.api.sabor.SaborRepository;
 import clinina.vet.api.sabor.SaborService;
 import clinina.vet.api.venda.DadosItensVendidos;
+import clinina.vet.api.venda.Venda;
 import clinina.vet.api.venda.VendaRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -39,7 +45,8 @@ public class ProdutoController {
     private FornecedorRepository fornecedorRepository;
     @Autowired
     private VendaRepository vendaRepository;
-
+    @Autowired
+    private FiadoRepository fiadoRepository;
     @Autowired
     private ProdutoService produtoService;
     @Autowired
@@ -189,5 +196,45 @@ public class ProdutoController {
     public List<DadosItensVendidos> pegarListaDeItensVendidos(){
         return vendaRepository.buscarItensVendidos();
     }
+
+    @GetMapping("/relatorio-fiado")
+    public List<DadoListagemFiado> pegarListaDeFiados(){
+        List<DadoListagemFiado> listaDeFiadosFinal = new ArrayList<>();
+        List<Fiado> listaFiados = this.fiadoRepository.findAll().stream().toList();
+
+
+
+        for (int i = 0; i < listaFiados.size(); i++) {
+            double valorTotal = 0;
+            Long iddevenda = listaFiados.get(i).getVendaId();
+            List<DadosItensVendidos> listaDeItensComprados = this.vendaRepository.encontrarItensPeloIdDeVenda(iddevenda);
+            for (int j = 0; j < listaDeItensComprados.size(); j++){
+                valorTotal += listaDeItensComprados.get(j).getPrecoTotal();
+            }
+
+            DadoListagemFiado fiado = new DadoListagemFiado(
+                    listaFiados.get(i).getId(),
+                    listaFiados.get(i).getNome(),
+                    listaFiados.get(i).getTelefone(),
+                    listaFiados.get(i).getEndereco(),
+                    listaFiados.get(i).getData(),
+                    valorTotal,
+                    listaDeItensComprados,
+                    listaFiados.get(i).getPagou()
+            );
+            listaDeFiadosFinal.add(fiado);
+        }
+        return listaDeFiadosFinal;
+    }
+
+    @PutMapping("/editar-fiado/{id}")
+    @Transactional
+    public void editarFiado(@PathVariable Long id, @RequestBody DadosEditarFiado dados) {
+        Fiado fiado = this.fiadoRepository.getReferenceById(id);
+        if (fiado != null) {
+            fiado.setPagou(dados.pagou());
+        }
+    }
+
 
 }
