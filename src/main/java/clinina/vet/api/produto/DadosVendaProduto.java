@@ -5,6 +5,9 @@ public record DadosVendaProduto(
         String codigoDeBarras,
         String produto,
         Double preco,
-        String imagemP
+        String imagemP,
+        String peso,
+        int quantidade,
+        Double desconto
 ) {
 }

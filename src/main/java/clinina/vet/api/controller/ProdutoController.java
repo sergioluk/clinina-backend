@@ -116,7 +116,7 @@ public class ProdutoController {
         Produto produto = repository.findByCodigoDeBarras(codigoDeBarras);
         DadosVendaProduto dados;
         if (produto != null) {
-            dados = new DadosVendaProduto(produto.getId(),produto.getCodigoDeBarras(), produto.getProduto(), produto.getPreco(),produto.getImagemP());
+            dados = new DadosVendaProduto(produto.getId(),produto.getCodigoDeBarras(), produto.getProduto(), produto.getPreco(),produto.getImagemP(), produto.getPeso(), 1, produto.getDesconto());
             return dados;
         }
         return null;
