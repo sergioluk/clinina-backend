@@ -41,8 +41,9 @@ public class Produto {
     private String peso;
     private double desconto;
     private String animal;
-    private int castrado; //talvez voltar a colocar int
+    private int castrado;
     private String porte;
+    private Double precoCompra;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Informacao> informacao = new ArrayList<>();
@@ -73,6 +74,7 @@ public class Produto {
         this.fornecedor = dados.fornecedor();
         this.estoque = dados.estoque();
         this.imagemP = dados.imagemP();
+        this.precoCompra = dados.precoCompra();
     }
 
 }

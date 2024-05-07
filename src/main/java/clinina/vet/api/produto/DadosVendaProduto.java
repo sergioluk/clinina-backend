@@ -8,6 +8,7 @@ public record DadosVendaProduto(
         String imagemP,
         String peso,
         int quantidade,
-        Double desconto
+        Double desconto,
+        Double precoCompra
 ) {
 }

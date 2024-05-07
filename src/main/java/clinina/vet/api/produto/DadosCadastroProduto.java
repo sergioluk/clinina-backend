@@ -25,7 +25,8 @@ public record DadosCadastroProduto(
         List<String> informacao,
         Fornecedor fornecedor,
         int estoque,
-        String imagemP
+        String imagemP,
+        Double precoCompra
 ) {
 
 }
