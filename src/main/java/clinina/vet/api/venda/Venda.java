@@ -28,6 +28,7 @@ public class Venda {
     private Date data;
     private String pagamento;
     private Long iddevenda;
+    private Double desconto;
 
     //Esse @Transient é para avisar pro spring ignorar esse campo pq não é uma coluna, é só pra usar esses dados mesmo
     @Transient

@@ -50,6 +50,7 @@ public class VendaController {
             System.out.println("telefone: " + dados.get(i).getTelefone());
             System.out.println("endereco: " + dados.get(i).getEndereco());
             System.out.println("data: " + dados.get(i).getData());
+            System.out.println("Desconto: " + dados.get(i).getDesconto());
         }
 
 
@@ -63,6 +64,7 @@ public class VendaController {
             v.setPeso(dados.get(i).getPeso());
             v.setPagamento(dados.get(i).getPagamento());
             v.setIddevenda(idDeVenda);
+            v.setDesconto(dados.get(i).getDesconto());
             repository.save(v);
         }
         if (dados.get(0).getPagamento().equals("Fiado")){
