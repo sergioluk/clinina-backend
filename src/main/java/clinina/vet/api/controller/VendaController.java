@@ -1,17 +1,18 @@
 package clinina.vet.api.controller;
 
+import clinina.vet.api.categoria.DadosCadastroCategoria;
 import clinina.vet.api.fiado.Fiado;
 import clinina.vet.api.fiado.FiadoRepository;
 import clinina.vet.api.produto.DadosCadastroProduto;
+import clinina.vet.api.produto.DadosVendaProduto;
+import clinina.vet.api.produto.Produto;
+import clinina.vet.api.produto.ProdutoRepository;
 import clinina.vet.api.venda.DadosVenda;
 import clinina.vet.api.venda.Venda;
 import clinina.vet.api.venda.VendaRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,6 +24,8 @@ public class VendaController {
     private VendaRepository repository;
     @Autowired
     private FiadoRepository fiadoRepository;
+    @Autowired
+    private ProdutoRepository produtoRepository;
 
     @PostMapping
     @Transactional
@@ -78,6 +81,11 @@ public class VendaController {
             fiadoRepository.save(f);
         }
 
+    }
+
+    @GetMapping("/nome/{nome}")
+    public List<DadosVendaProduto> findByName(@PathVariable String nome) {
+        return produtoRepository.findByProdutoContainingIgnoreCase(nome).stream().map(DadosVendaProduto::new).toList();
     }
 
 }
