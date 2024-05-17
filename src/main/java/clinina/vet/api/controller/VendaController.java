@@ -69,6 +69,15 @@ public class VendaController {
             v.setIddevenda(idDeVenda);
             v.setDesconto(dados.get(i).getDesconto());
             repository.save(v);
+            //Parte para diminuir quantidade no estoque
+            Produto p = this.produtoRepository.getReferenceById(dados.get(i).getProduto_id());
+            if (p != null) {
+                int estoque = p.getEstoque() - dados.get(i).getQuantidade();
+                if (estoque < 0) {
+                    estoque = 0;
+                }
+                p.setEstoque(estoque);
+            }
         }
         if (dados.get(0).getPagamento().equals("Fiado")){
             Fiado f = new Fiado();
@@ -80,6 +89,8 @@ public class VendaController {
             f.setVendaId(idDeVenda);
             fiadoRepository.save(f);
         }
+
+
 
     }
 

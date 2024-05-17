@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("produtos")
@@ -121,6 +123,39 @@ public class ProdutoController {
         }
         return null;
         //return repository.findByCodigoDeBarras(codigoDeBarras);
+    }
+    @PatchMapping("/editarProduto/{codigoDeBarras}")
+    @Transactional
+    public void alterarProduto(@PathVariable String codigoDeBarras, @RequestBody DadosCadastroProduto dados) {
+        Produto produto = repository.findByCodigoDeBarras(codigoDeBarras);
+        System.out.println("codigo de barras: " + codigoDeBarras);
+        System.out.println("Produto: " + produto.getProduto());
+        if (produto != null) {
+            produto.setCodigoDeBarras(dados.codigoDeBarras());
+            produto.setProduto(dados.produto());
+            produto.setImagemP(dados.imagemP());
+            produto.setPrecoCompra(dados.precoCompra());
+            produto.setPreco(dados.preco());
+            produto.setEstoque(dados.estoque());
+        }
+    }
+
+    @GetMapping("/verificarCodigoDeBarras/{codigoDeBarras}")
+    public boolean verificarCodigoDeBarras(@PathVariable String codigoDeBarras) {
+        return repository.existsByCodigoDeBarras(codigoDeBarras);
+    }
+
+    @GetMapping("/encontrar/{nome}")
+    public List<ProdutosDTO> findByName(@PathVariable String nome) {
+        //return repository.searchByNomeOrCodigoBarras(nome).stream().map(ProdutosDTO::new).toList();
+
+        List<ProdutosDTO> produtosPorNome = repository.findByProdutoContainingIgnoreCase(nome).stream().map(ProdutosDTO::new).toList();
+        List<ProdutosDTO> produtosPorCodigoDeBarras = repository.findByCodigoDeBarrasContainingIgnoreCase(nome).stream().map(ProdutosDTO::new).toList();
+
+        //List<Produto> produtosPorNome = repository.findByProdutoContainingIgnoreCase(nome);
+        //List<Produto> produtosPorCodigoDeBarras = repository.findByCodigoDeBarrasContainingIgnoreCase(nome);
+
+        return Stream.concat(produtosPorNome.stream(), produtosPorCodigoDeBarras.stream()).distinct().collect(Collectors.toList());
     }
 
     @GetMapping("/codigo-de-barras/editar/{codigoDeBarras}")

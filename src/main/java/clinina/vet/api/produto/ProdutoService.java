@@ -27,6 +27,7 @@ public class ProdutoService {
         produto.setSabor(dados.sabor());
         produto.setIdade(dados.idade());
         produto.setPreco(dados.preco());
+        produto.setPrecoCompra(dados.precoCompra());
         produto.setPeso(dados.peso());
         produto.setDesconto(dados.desconto());
         produto.setAnimal(dados.animal());

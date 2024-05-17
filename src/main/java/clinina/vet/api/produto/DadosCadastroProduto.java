@@ -4,6 +4,8 @@ import clinina.vet.api.Idade.Idade;
 import clinina.vet.api.categoria.Categoria;
 import clinina.vet.api.categoria.DadosCadastroCategoria;
 import clinina.vet.api.fornecedor.Fornecedor;
+import clinina.vet.api.imagens.Imagem;
+import clinina.vet.api.informacoes.Informacao;
 import clinina.vet.api.sabor.Sabor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -28,5 +30,6 @@ public record DadosCadastroProduto(
         String imagemP,
         Double precoCompra
 ) {
+
 
 }
