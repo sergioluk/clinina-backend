@@ -119,5 +119,11 @@
                 <layout>default</layout>
             </repository>
         </distributionManagement>-->
-
+	<distributionManagement>
+		<repository>
+			<id>internal.repo</id>
+			<name>Internal repo</name>
+			<url>file:C:\Users\Sergio\Desktop\Nova pasta</url>
+		</repository>
+	</distributionManagement>
     </project>
