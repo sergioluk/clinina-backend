@@ -271,5 +271,11 @@ public class ProdutoController {
         }
     }
 
+    @GetMapping("/ping")
+    public String pingar() {
+        return "Pingou";
+    }
+
+
 
 }
