@@ -26,7 +26,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -272,9 +274,11 @@ public class ProdutoController {
     }
 
     @GetMapping("/ping")
-    public String pingar() {
+    public Map<String, String> pingar() {
         System.out.println("Pingou");
-        return "Pingou";
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Pingou");
+        return response;
     }
 
 
