@@ -273,6 +273,7 @@ public class ProdutoController {
 
     @GetMapping("/ping")
     public String pingar() {
+        System.out.println("Pingou");
         return "Pingou";
     }
 
