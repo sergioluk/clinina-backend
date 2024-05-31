@@ -230,8 +230,8 @@ public class ProdutoController {
     }
 
     @GetMapping("/relatorio")
-    public List<DadosItensVendidos> pegarListaDeItensVendidos(){
-        return vendaRepository.buscarItensVendidos();
+    public List<DadosItensVendidos> pegarListaDeItensVendidos(@RequestParam int dia, @RequestParam int mes, @RequestParam int ano){
+        return vendaRepository.buscarItensVendidos(dia, mes, ano);
     }
 
     @GetMapping("/relatorio-fiado")

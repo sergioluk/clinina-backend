@@ -10,8 +10,11 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
     //@Query(value = "SELECT v.id, p.imagemP, p.produto, v.quantidade, v.preco_unitario as precoUnitario, v.preco_total as PrecoTotal, v.data FROM vendas v JOIN produtos p ON v.produto_id = p.id;", nativeQuery = true)
    //List<DadosItensVendidos> buscarItensVendidos();
 
-    @Query(value = "SELECT v.id, v.peso, p.imagemP, p.produto, v.quantidade, v.preco_unitario as precoUnitario, v.preco_total as PrecoTotal, v.data FROM vendas v JOIN produtos p ON v.produto_id = p.id where data >= '2024-04-30 00:00:00' and data <= '2024-04-30 23:59:59';", nativeQuery = true)
-    List<DadosItensVendidos> buscarItensVendidos();
+    //@Query(value = "SELECT v.id, v.peso, p.imagemP, p.produto, v.quantidade, v.pagamento, v.desconto, v.preco_unitario as precoUnitario, v.preco_total as PrecoTotal, v.data FROM vendas v JOIN produtos p ON v.produto_id = p.id where data >= '2024-04-30 00:00:00' and data <= '2024-04-30 23:59:59';", nativeQuery = true)
+    //List<DadosItensVendidos> buscarItensVendidos(@Param("dia") int dia, @Param("mes") int mes, @Param("ano") int ano);
+
+    @Query(value = "SELECT v.id, v.peso, p.imagemP, p.produto, v.quantidade, v.pagamento, v.desconto, v.preco_unitario as precoUnitario, v.preco_total as PrecoTotal, v.data FROM vendas v JOIN produtos p ON v.produto_id = p.id where data >= CONCAT(:ano, '-', :mes, '-', :dia, ' 00:00:00') and data <= CONCAT(:ano, '-', :mes, '-', :dia, ' 23:59:59');", nativeQuery = true)
+    List<DadosItensVendidos> buscarItensVendidos(@Param("dia") int dia, @Param("mes") int mes, @Param("ano") int ano);
 
     @Query(value = "SELECT v.id, v.peso, p.imagemP, p.produto, v.quantidade, v.preco_unitario as precoUnitario, v.preco_total as PrecoTotal, v.data FROM vendas v JOIN produtos p ON v.produto_id = p.id where v.iddevenda = :iddevenda ;", nativeQuery = true)
     List<DadosItensVendidos> encontrarItensPeloIdDeVenda(@Param("iddevenda") Long iddevenda);

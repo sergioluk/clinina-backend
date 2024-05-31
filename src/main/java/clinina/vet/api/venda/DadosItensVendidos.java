@@ -16,4 +16,6 @@ public interface DadosItensVendidos {
     Double getPrecoTotal();
     String getPeso();
     Date getData();
+    String getPagamento();
+    Double getDesconto();
 }
