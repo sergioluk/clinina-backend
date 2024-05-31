@@ -230,8 +230,19 @@ public class ProdutoController {
     }
 
     @GetMapping("/relatorio")
-    public List<DadosItensVendidos> pegarListaDeItensVendidos(@RequestParam int dia, @RequestParam int mes, @RequestParam int ano){
-        return vendaRepository.buscarItensVendidos(dia, mes, ano);
+    public List<DadosItensVendidos> pegarListaDeItensVendidos(@RequestParam int start_dia,
+                                                              @RequestParam int start_mes,
+                                                              @RequestParam int start_ano,
+                                                              @RequestParam int end_dia,
+                                                              @RequestParam int end_mes,
+                                                              @RequestParam int end_ano){
+        //Verificar se a segunda data não foi escolhida
+        if (end_dia == 0 || end_mes == 0 || end_ano == 0) {
+            end_dia = start_dia;
+            end_mes = start_mes;
+            end_ano = start_ano;
+        }
+        return vendaRepository.buscarItensVendidos(start_dia, start_mes, start_ano, end_dia, end_mes, end_ano);
     }
 
     @GetMapping("/relatorio-fiado")
