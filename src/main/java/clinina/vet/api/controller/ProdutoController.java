@@ -236,7 +236,7 @@ public class ProdutoController {
                                                               @RequestParam int end_dia,
                                                               @RequestParam int end_mes,
                                                               @RequestParam int end_ano){
-        //Verificar se a segunda data não foi escolhida
+        //Verificar se a segunda data não foi escolhidaa
         if (end_dia == 0 || end_mes == 0 || end_ano == 0) {
             end_dia = start_dia;
             end_mes = start_mes;
