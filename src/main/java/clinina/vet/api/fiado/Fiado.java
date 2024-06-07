@@ -25,5 +25,7 @@ public class Fiado {
 
     private Long vendaId;
     private int pagou;
+    private Date modified_at;
+    private double pagamento;
 
 }

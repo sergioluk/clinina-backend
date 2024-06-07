@@ -13,6 +13,8 @@ public record DadoListagemFiado(
     Date data,
     Double valorTotal,
     List<DadosItensVendidos> itens,
-    int pagou
+    int pagou,
+    Date modified_at,
+    double pagamento
 ) {
 }

@@ -5,6 +5,8 @@ import clinina.vet.api.fiado.DadoListagemFiado;
 import clinina.vet.api.fiado.DadosEditarFiado;
 import clinina.vet.api.fiado.Fiado;
 import clinina.vet.api.fiado.FiadoRepository;
+import clinina.vet.api.fiados_venda.FiadoVenda;
+import clinina.vet.api.fiados_venda.FiadoVendaRepository;
 import clinina.vet.api.fornecedor.DadosCadastroFornecedor;
 import clinina.vet.api.Idade.IdadeRepository;
 import clinina.vet.api.Idade.IdadeService;
@@ -51,6 +53,8 @@ public class ProdutoController {
     private VendaRepository vendaRepository;
     @Autowired
     private FiadoRepository fiadoRepository;
+    @Autowired
+    private FiadoVendaRepository fiadoVendaRepository;
     @Autowired
     private ProdutoService produtoService;
     @Autowired
@@ -250,14 +254,12 @@ public class ProdutoController {
         List<DadoListagemFiado> listaDeFiadosFinal = new ArrayList<>();
         List<Fiado> listaFiados = this.fiadoRepository.findAll().stream().toList();
 
-
-
         for (int i = 0; i < listaFiados.size(); i++) {
             double valorTotal = 0;
             Long iddevenda = listaFiados.get(i).getVendaId();
-            List<DadosItensVendidos> listaDeItensComprados = this.vendaRepository.encontrarItensPeloIdDeVenda(iddevenda);
+            List<DadosItensVendidos> listaDeItensComprados = this.fiadoVendaRepository.encontrarItensPeloIdDeVenda(iddevenda);
             for (int j = 0; j < listaDeItensComprados.size(); j++){
-                valorTotal += listaDeItensComprados.get(j).getPrecoTotal();
+                valorTotal += listaDeItensComprados.get(j).getPrecoUnitario() * listaDeItensComprados.get(j).getQuantidade();
             }
 
             DadoListagemFiado fiado = new DadoListagemFiado(
@@ -268,7 +270,9 @@ public class ProdutoController {
                     listaFiados.get(i).getData(),
                     valorTotal,
                     listaDeItensComprados,
-                    listaFiados.get(i).getPagou()
+                    listaFiados.get(i).getPagou(),
+                    listaFiados.get(i).getModified_at(),
+                    listaFiados.get(i).getPagamento()
             );
             listaDeFiadosFinal.add(fiado);
         }
@@ -281,6 +285,8 @@ public class ProdutoController {
         Fiado fiado = this.fiadoRepository.getReferenceById(id);
         if (fiado != null) {
             fiado.setPagou(dados.pagou());
+            fiado.setPagamento(dados.pagamento());
+            fiado.setModified_at(dados.modified_at());
         }
     }
 
@@ -290,6 +296,71 @@ public class ProdutoController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Pingou");
         return response;
+    }
+
+    @PostMapping("/cadastrarFiado")
+    @Transactional
+    public void cadastrarFiado(@RequestBody List<Venda> dados){
+        Long maiorIdDeVenda = fiadoVendaRepository.encontrarMaiorIdVenda();
+        Long idDeVenda = 0L;
+        if (maiorIdDeVenda == null) {
+            idDeVenda = 1L;
+        } else {
+            idDeVenda = maiorIdDeVenda + 1;
+        }
+
+        System.out.println("maior id da venda: " + maiorIdDeVenda);
+
+        for (int i = 0; i < dados.size();i++){
+            System.out.println("produto_id: " + dados.get(i).getProduto_id());
+            System.out.println("quantidade: " + dados.get(i).getQuantidade());
+            System.out.println("preco_unitario: " + dados.get(i).getPrecoUnitario());
+            System.out.println("preco_total: " + dados.get(i).getPrecoTotal());
+            System.out.println("data: " + dados.get(i).getData());
+            System.out.println("peso: " + dados.get(i).getPeso());
+            System.out.println("pagamento: " + dados.get(i).getPagamento());
+
+            System.out.println("nome: " + dados.get(i).getNome());
+            System.out.println("telefone: " + dados.get(i).getTelefone());
+            System.out.println("endereco: " + dados.get(i).getEndereco());
+            System.out.println("data: " + dados.get(i).getData());
+            System.out.println("Desconto: " + dados.get(i).getDesconto());
+        }
+
+
+        for (int i = 0; i < dados.size();i++){
+            FiadoVenda f = new FiadoVenda();
+            f.setProduto_id(dados.get(i).getProduto_id());
+            f.setData(dados.get(i).getData());
+            f.setQuantidade(dados.get(i).getQuantidade());
+            f.setPrecoUnitario(dados.get(i).getPrecoUnitario());
+            f.setPeso(dados.get(i).getPeso());
+            f.setIdvendafiado(idDeVenda);
+            f.setDesconto(dados.get(i).getDesconto());
+            fiadoVendaRepository.save(f);
+            //Parte para diminuir quantidade no estoque
+            Produto p = this.repository.getReferenceById(dados.get(i).getProduto_id());
+            if (p != null) {
+                int estoque = p.getEstoque() - dados.get(i).getQuantidade();
+                if (estoque < 0) {
+                    estoque = 0;
+                }
+                p.setEstoque(estoque);
+            }
+        }
+        if (dados.get(0).getPagamento().equals("Fiado")){
+            Fiado f = new Fiado();
+            f.setNome(dados.get(0).getNome());
+            f.setTelefone(dados.get(0).getTelefone());
+            f.setEndereco(dados.get(0).getEndereco());
+            f.setData(dados.get(0).getData());
+            f.setPagou(0);
+            f.setVendaId(idDeVenda);
+            fiadoRepository.save(f);
+        }
+
+
+
     }
 
 
