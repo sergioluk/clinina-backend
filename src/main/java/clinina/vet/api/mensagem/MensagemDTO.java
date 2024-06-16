@@ -16,8 +16,8 @@ public record MensagemDTO(
     public MensagemDTO(Mensagem mensagem){
         this(
                 mensagem.getId(),
-                mensagem.getMensagem(),
                 mensagem.getAutor(),
+                mensagem.getMensagem(),
                 mensagem.getCreated_at(),
                 mensagem.getModified_at(),
                 mensagem.getExcluir(),
