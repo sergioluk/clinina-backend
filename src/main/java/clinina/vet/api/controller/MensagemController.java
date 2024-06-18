@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("mensagens")
@@ -35,6 +36,28 @@ public class MensagemController {
         mensagem.setModified_at(dto.modified_at());
         mensagem.setCreated_at(dto.created_at());
         this.repository.save(mensagem);
+    }
+
+    @PatchMapping("/editarMensagemVisto/{id}")
+    @Transactional
+    public void editarMensagemVisto(@PathVariable Long id, @RequestBody MensagemDTO dto) {
+        Optional<Mensagem> msg = repository.findById(id);
+        if (msg.isPresent()) {
+            System.out.println("autor editar: " + msg.get().getAutor());
+            msg.get().setLeitura(dto.leitura());
+            msg.get().setModified_at(dto.modified_at());
+        }
+    }
+
+    @PatchMapping("/apagarMensagem/{id}")
+    @Transactional
+    public void apagarMensagem(@PathVariable Long id, @RequestBody MensagemDTO dto) {
+        Optional<Mensagem> msg = repository.findById(id);
+        if (msg.isPresent()) {
+            System.out.println("autor apagar: " + msg.get().getAutor());
+            msg.get().setExcluir(dto.excluir());
+            msg.get().setModified_at(dto.modified_at());
+        }
     }
 
 }
