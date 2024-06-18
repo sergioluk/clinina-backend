@@ -22,7 +22,7 @@ public class MensagemController {
 
     @GetMapping
     public List<MensagemDTO> listarMensagens(){
-        return repository.findAll().stream().map(MensagemDTO::new).toList();
+        return repository.findByExcluir(0).stream().map(MensagemDTO::new).toList();
     }
 
     @PostMapping
