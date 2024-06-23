@@ -6,5 +6,6 @@ import java.util.Collection;
 import java.util.List;
 
 public interface MensagemRepository extends JpaRepository<Mensagem, Long> {
+    List<Mensagem> findByExcluirAndLeitura(int excluir, int leitura);
     List<Mensagem> findByExcluir(int i);
 }

@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,8 +22,18 @@ public class MensagemController {
     private MensagemRepository repository;
 
     @GetMapping
-    public List<MensagemDTO> listarMensagens(){
-        return repository.findByExcluir(0).stream().map(MensagemDTO::new).toList();
+    public List<MensagemDTO> listarMensagens(@RequestParam String estado){
+        List<Mensagem> mensagens;
+        switch (estado.toLowerCase()) {
+            case "lido":
+                mensagens = this.repository.findByExcluirAndLeitura(0, 1);
+            case "naolido":
+                mensagens = this.repository.findByExcluirAndLeitura(0, 0);
+            case "todos":
+            default:
+                mensagens = this.repository.findByExcluir(0);
+        }
+        return mensagens.stream().map(MensagemDTO::new).toList();
     }
 
     @PostMapping
