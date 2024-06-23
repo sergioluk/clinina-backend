@@ -27,8 +27,10 @@ public class MensagemController {
         switch (estado.toLowerCase()) {
             case "lido":
                 mensagens = this.repository.findByExcluirAndLeitura(0, 1);
+                break;
             case "naolido":
                 mensagens = this.repository.findByExcluirAndLeitura(0, 0);
+                break;
             case "todos":
             default:
                 mensagens = this.repository.findByExcluir(0);
