@@ -16,7 +16,8 @@ public record ProdutoDetalhesDTO(
         String peso,
         String porte,
         String fornecedor,
-        int castrado
+        int castrado,
+        String imagemP
 ) {
     public ProdutoDetalhesDTO(Produto produto){
         this(produto.getId(),
@@ -34,7 +35,8 @@ public record ProdutoDetalhesDTO(
                 produto.getPeso(),
                 produto.getPorte(),
                 produto.getFornecedor().getNome(),
-                produto.getCastrado()
+                produto.getCastrado(),
+                produto.getImagemP()
         );
 
     }
