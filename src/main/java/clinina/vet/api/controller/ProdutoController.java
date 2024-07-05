@@ -363,6 +363,16 @@ public class ProdutoController {
 
     }
 
+    @GetMapping("/detalhes-produto/{codigoDeBarras}")
+    public ProdutoDetalhesDTO buscarProdutoDetalhes(@PathVariable String codigoDeBarras) {
+        Produto produto = repository.findByCodigoDeBarras(codigoDeBarras);
+        ProdutoDetalhesDTO dados;
+        if (produto != null) {
+            dados = new ProdutoDetalhesDTO(produto);
+            return dados;
+        }
+        return null;
+    }
 
 
 }
