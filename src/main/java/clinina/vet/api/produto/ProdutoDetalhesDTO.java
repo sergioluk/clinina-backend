@@ -17,7 +17,9 @@ public record ProdutoDetalhesDTO(
         String porte,
         String fornecedor,
         int castrado,
-        String imagemP
+        String imagemP,
+        Double valorVendaEstoque,
+        Double valorCustoEstoque
 ) {
     public ProdutoDetalhesDTO(Produto produto){
         this(produto.getId(),
@@ -36,7 +38,9 @@ public record ProdutoDetalhesDTO(
                 produto.getPorte(),
                 produto.getFornecedor().getNome(),
                 produto.getCastrado(),
-                produto.getImagemP()
+                produto.getImagemP(),
+                produto.getPreco() * produto.getEstoque(),
+                produto.getPrecoCompra() * produto.getEstoque()
         );
 
     }
