@@ -1,5 +1,9 @@
 package clinina.vet.api.produto;
 
+import clinina.vet.api.venda.LinhaDoTempoDTO;
+
+import java.util.List;
+
 public record ProdutoDetalhesDTO(
         Long id,
         String produto,
@@ -19,9 +23,10 @@ public record ProdutoDetalhesDTO(
         int castrado,
         String imagemP,
         Double valorVendaEstoque,
-        Double valorCustoEstoque
+        Double valorCustoEstoque,
+        List<LinhaDoTempoDTO> linhaDoTempo
 ) {
-    public ProdutoDetalhesDTO(Produto produto){
+    public ProdutoDetalhesDTO(Produto produto, List<LinhaDoTempoDTO> lista){
         this(produto.getId(),
                 produto.getProduto(),
                 produto.getCodigoDeBarras(),
@@ -40,8 +45,10 @@ public record ProdutoDetalhesDTO(
                 produto.getCastrado(),
                 produto.getImagemP(),
                 produto.getPreco() * produto.getEstoque(),
-                produto.getPrecoCompra() * produto.getEstoque()
+                produto.getPrecoCompra() != null ? produto.getPrecoCompra() * produto.getEstoque() : 0,
+                lista
         );
 
     }
+
 }

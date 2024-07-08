@@ -20,6 +20,7 @@ import clinina.vet.api.sabor.DadosCadastroSabor;
 import clinina.vet.api.sabor.SaborRepository;
 import clinina.vet.api.sabor.SaborService;
 import clinina.vet.api.venda.DadosItensVendidos;
+import clinina.vet.api.venda.LinhaDoTempoDTO;
 import clinina.vet.api.venda.Venda;
 import clinina.vet.api.venda.VendaRepository;
 import jakarta.transaction.Transactional;
@@ -368,7 +369,8 @@ public class ProdutoController {
         Produto produto = repository.findByCodigoDeBarras(codigoDeBarras);
         ProdutoDetalhesDTO dados;
         if (produto != null) {
-            dados = new ProdutoDetalhesDTO(produto);
+            List<LinhaDoTempoDTO> linhaDoTempo = this.produtoService.linhaDoTempo(produto.getId());
+            dados = new ProdutoDetalhesDTO(produto, linhaDoTempo);
             return dados;
         }
         return null;
