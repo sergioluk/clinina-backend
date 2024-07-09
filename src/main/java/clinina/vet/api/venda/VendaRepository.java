@@ -19,7 +19,10 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
     List<DadosItensVendidos> encontrarItensPeloIdDeVenda(@Param("iddevenda") Long iddevenda);
 
 
-    @Query(value = "SELECT * FROM vendas WHERE produto_id = :produtoId", nativeQuery = true)
-    List<Venda> findByProdutoId(@Param("produtoId") Long produtoId);
+    @Query(value = "SELECT * FROM vendas WHERE produto_id = :produtoId ;", nativeQuery = true)
+    List<Venda> listaLinhaDoTempoTodos(@Param("produtoId") Long produtoId);
+
+    @Query(value = "SELECT * FROM vendas WHERE produto_id = :produtoId AND data >= CURDATE() - INTERVAL :dias DAY;", nativeQuery = true)
+    List<Venda>listaLinhaDoTempoComParam(@Param("produtoId") Long produtoId ,@Param("dias") int dias);
 
 }

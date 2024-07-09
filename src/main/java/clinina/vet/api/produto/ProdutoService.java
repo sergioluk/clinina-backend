@@ -1,16 +1,15 @@
 package clinina.vet.api.produto;
 
-import clinina.vet.api.categoria.DadosCadastroCategoria;
 import clinina.vet.api.imagens.Imagem;
 import clinina.vet.api.imagens.ImagemRepository;
 import clinina.vet.api.informacoes.Informacao;
 import clinina.vet.api.venda.LinhaDoTempoDTO;
-import clinina.vet.api.venda.Venda;
 import clinina.vet.api.venda.VendaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -74,8 +73,17 @@ public class ProdutoService {
         produtoRepository.save(produto);
     }
 
-    public List<LinhaDoTempoDTO> linhaDoTempo(Long id) {
-        return this.vendaRepository.findByProdutoId(id).stream().map(LinhaDoTempoDTO::new).toList();
+    public List<LinhaDoTempoDTO> linhaDoTempoTodos(Long produtoId) {
+        return this.vendaRepository.listaLinhaDoTempoTodos(produtoId).stream().map(LinhaDoTempoDTO::new).toList();
+    }
+
+    public List<LinhaDoTempoDTO> linhaDoTempoComParametros(Long produtoId, int dias) {
+//        LocalDate hoje = LocalDate.now();
+//        LocalDate diaCalculado = hoje.minusDays(dias - 1);
+//        System.out.println("Dia Hoje: " + hoje.getDayOfMonth());
+//        System.out.println("Mes Hoje: " + hoje.getMonthValue());
+//        System.out.println("Ano Hoje: " + hoje.getYear());
+        return this.vendaRepository.listaLinhaDoTempoComParam(produtoId,dias).stream().map(LinhaDoTempoDTO::new).toList();
     }
 
 }

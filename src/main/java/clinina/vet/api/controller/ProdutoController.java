@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -369,9 +371,30 @@ public class ProdutoController {
         Produto produto = repository.findByCodigoDeBarras(codigoDeBarras);
         ProdutoDetalhesDTO dados;
         if (produto != null) {
-            List<LinhaDoTempoDTO> linhaDoTempo = this.produtoService.linhaDoTempo(produto.getId());
+            //List<LinhaDoTempoDTO> linhaDoTempo = this.produtoService.linhaDoTempo(produto.getId());
+            List<LinhaDoTempoDTO> linhaDoTempo = this.produtoService.linhaDoTempoComParametros(produto.getId(), 30);
             dados = new ProdutoDetalhesDTO(produto, linhaDoTempo);
             return dados;
+        }
+        return null;
+    }
+
+    @GetMapping("/detalhes-produto/linhaDoTempo")
+    public List<LinhaDoTempoDTO> buscarListaLinhaDoTempo(@RequestParam String codigoDeBarras, @RequestParam String valor) {
+        Produto produto = repository.findByCodigoDeBarras(codigoDeBarras);
+        List<LinhaDoTempoDTO> linhaDoTempo;
+        if (produto != null) {
+            int dias = 0;
+            switch (valor) {
+                case "7 dias" -> dias = 7;
+                case "15 dias" -> dias = 15;
+                case "30 dias" -> dias = 30;
+                default -> {
+                    return this.produtoService.linhaDoTempoTodos(produto.getId());  //Todos
+                }
+            }
+            linhaDoTempo = this.produtoService.linhaDoTempoComParametros(produto.getId(), dias);
+            return linhaDoTempo;
         }
         return null;
     }
