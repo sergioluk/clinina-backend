@@ -24,9 +24,10 @@ public record ProdutoDetalhesDTO(
         String imagemP,
         Double valorVendaEstoque,
         Double valorCustoEstoque,
-        List<LinhaDoTempoDTO> linhaDoTempo
+        List<LinhaDoTempoDTO> linhaDoTempo,
+        Double valorUltimaCompra
 ) {
-    public ProdutoDetalhesDTO(Produto produto, List<LinhaDoTempoDTO> lista){
+    public ProdutoDetalhesDTO(Produto produto, List<LinhaDoTempoDTO> lista, Double valorUltimaCompra){
         this(produto.getId(),
                 produto.getProduto(),
                 produto.getCodigoDeBarras(),
@@ -46,7 +47,8 @@ public record ProdutoDetalhesDTO(
                 produto.getImagemP(),
                 produto.getPreco() * produto.getEstoque(),
                 produto.getPrecoCompra() != null ? produto.getPrecoCompra() * produto.getEstoque() : 0,
-                lista
+                lista,
+                valorUltimaCompra
         );
 
     }

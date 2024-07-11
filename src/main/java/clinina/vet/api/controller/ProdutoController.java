@@ -30,10 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -373,7 +370,11 @@ public class ProdutoController {
         if (produto != null) {
             //List<LinhaDoTempoDTO> linhaDoTempo = this.produtoService.linhaDoTempo(produto.getId());
             List<LinhaDoTempoDTO> linhaDoTempo = this.produtoService.linhaDoTempoComParametros(produto.getId(), 30);
-            dados = new ProdutoDetalhesDTO(produto, linhaDoTempo);
+            LinhaDoTempoDTO objUltimaVenda = linhaDoTempo.stream().max(Comparator.comparing((LinhaDoTempoDTO::dataVenda))).orElse(null);
+            Double ultimaVenda = 0d;
+            if (objUltimaVenda != null)
+                ultimaVenda = objUltimaVenda.precoVenda() * objUltimaVenda.quantidade();
+            dados = new ProdutoDetalhesDTO(produto, linhaDoTempo, ultimaVenda);
             return dados;
         }
         return null;
