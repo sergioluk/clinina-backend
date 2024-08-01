@@ -5,10 +5,7 @@ import clinina.vet.api.caixa.CaixaDTO;
 import clinina.vet.api.caixa.CaixaRepository;
 import clinina.vet.api.venda.DadosItensVendidos;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,5 +24,11 @@ public class CaixaController {
             caixaDTO = new CaixaDTO(caixa);
         }
         return caixaDTO;
+    }
+
+    @PostMapping("/fecharCaixa")
+    public void fecharCaixa(@RequestBody CaixaDTO caixaDTO) {
+        Caixa caixa = new Caixa(caixaDTO);
+        this.caixaRepository.save(caixa);
     }
 }
