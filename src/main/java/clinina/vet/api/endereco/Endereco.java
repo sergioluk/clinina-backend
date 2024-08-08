@@ -28,7 +28,6 @@ public class Endereco {
 
 
 
-
 //    public Endereco(DadosEndereco dados) {
 //        //this.logradouro = dados.logradouro();
 //        this.bairro = dados.bairro();

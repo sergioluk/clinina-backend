@@ -1,6 +1,7 @@
 package clinina.vet.api.animais;
 
 import clinina.vet.api.tutor.Tutor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,5 +29,6 @@ public class Animais {
 
     @ManyToOne
     @JoinColumn(name = "tutor_id")
+    @JsonBackReference
     private Tutor tutor;
 }

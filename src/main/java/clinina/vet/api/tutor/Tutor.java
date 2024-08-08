@@ -3,6 +3,8 @@ package clinina.vet.api.tutor;
 import clinina.vet.api.animais.Animais;
 import clinina.vet.api.endereco.Endereco;
 import clinina.vet.api.servicos.Servicos;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,9 +32,11 @@ public class Tutor {
     private Endereco endereco;
 
     @OneToMany(mappedBy = "tutor")
+    @JsonManagedReference
     private List<Servicos> servicos;
 
-    @OneToMany(mappedBy = "tutor")
+    @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Animais> animais;
 
     public Tutor(TutorDTO dto) {

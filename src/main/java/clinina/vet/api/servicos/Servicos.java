@@ -1,6 +1,7 @@
 package clinina.vet.api.servicos;
 
 import clinina.vet.api.tutor.Tutor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,5 +26,6 @@ public class Servicos {
 
     @ManyToOne
     @JoinColumn(name = "tutor_id")
+    @JsonBackReference
     private Tutor tutor;
 }
