@@ -26,7 +26,8 @@ public class CaixaController {
         return caixaDTO;
     }
 
-    @PostMapping("/fecharCaixa")
+    //Mudar, não é mais save e criar o abricaxia
+    @PutMapping("/fecharCaixa")
     public void fecharCaixa(@RequestBody CaixaDTO caixaDTO) {
         Caixa caixa = new Caixa(caixaDTO);
         this.caixaRepository.save(caixa);
