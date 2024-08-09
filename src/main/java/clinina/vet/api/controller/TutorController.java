@@ -32,6 +32,7 @@ public class TutorController {
 
     @PutMapping("/{id}")
     public ResponseEntity<TutorDTO> updateTutor(@PathVariable Long id, @RequestBody AlterarTutorDTO dto) {
+        System.out.println("var: " + id);
         TutorDTO updatedTutor = tutorService.updateTutor(id,dto);
 
         if (updatedTutor == null) {

@@ -64,6 +64,7 @@ public class TutorService {
 
     @Transactional
     public TutorDTO updateTutor(Long id, AlterarTutorDTO dto) {
+        System.out.println("service: " + id);
         Optional<Tutor> existingTutor = tutorRepository.findById(id);
         if (existingTutor.isEmpty()) {
             return null;
@@ -73,6 +74,7 @@ public class TutorService {
         //Atualizar Tutor
         if (dto.nome() != null) tutor.setNome(dto.nome());
         if (dto.cpf() != null) tutor.setCpf(dto.cpf());
+        if (dto.email() != null) tutor.setEmail(dto.email());
         if (dto.telefone() != null) tutor.setTelefone(dto.telefone());
         if (dto.celular() != null) tutor.setCelular(dto.celular());
 

@@ -24,6 +24,7 @@ public class Tutor {
     private Long id;
     private String nome;
     private String cpf;
+    private String email;
     private String telefone;
     private String celular;
 
@@ -42,6 +43,7 @@ public class Tutor {
     public Tutor(TutorDTO dto) {
         this.nome = dto.nome();
         this.cpf = dto.cpf();
+        this.email = dto.email();
         this.telefone = dto.telefone();
         this.celular = dto.celular();
         this.endereco = dto.endereco();
