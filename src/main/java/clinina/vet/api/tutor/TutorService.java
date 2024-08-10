@@ -64,7 +64,6 @@ public class TutorService {
 
     @Transactional
     public TutorDTO updateTutor(Long id, AlterarTutorDTO dto) {
-        System.out.println("service: " + id);
         Optional<Tutor> existingTutor = tutorRepository.findById(id);
         if (existingTutor.isEmpty()) {
             return null;
@@ -99,7 +98,10 @@ public class TutorService {
         }
         if (dto.animais() != null) {
             for (Animais animalDTO : dto.animais()) {
-                Animais animal = animaisRepository.findById(animalDTO.getId()).orElse(new Animais());
+                Animais animal = new Animais();
+                if (animalDTO.getId() != null) {
+                    animal = animaisRepository.findById(animalDTO.getId()).orElse(new Animais());
+                }
                 if (animalDTO.getNome() != null)
                     animal.setNome(animalDTO.getNome());
                 if (animalDTO.getRaca() != null)
