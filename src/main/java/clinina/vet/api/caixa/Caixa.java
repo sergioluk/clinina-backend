@@ -27,6 +27,7 @@ public class Caixa {
     private Double dinheiro_conferido;
     private Double pix_conferido;
     private Double fiado_conferido;
+    private String status;
 
     public Caixa(CaixaDTO c) {
         this.abertura_data = c.abertura_data();
@@ -40,5 +41,6 @@ public class Caixa {
         this.dinheiro_conferido = c.dinheiro_conferido();
         this.pix_conferido = c.pix_conferido();
         this.fiado_conferido = c.fiado_conferido();
+        this.status = c.status();
     }
 }

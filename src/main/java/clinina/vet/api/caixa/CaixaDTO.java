@@ -16,7 +16,8 @@ public record CaixaDTO(
         Double debito_conferido,
         Double dinheiro_conferido,
         Double pix_conferido,
-        Double fiado_conferido
+        Double fiado_conferido,
+        String status
 ) {
     public CaixaDTO(Caixa caixa){
         this(
@@ -31,7 +32,8 @@ public record CaixaDTO(
                 caixa.getDebito_conferido(),
                 caixa.getDinheiro_conferido(),
                 caixa.getPix_conferido(),
-                caixa.getFiado_conferido()
+                caixa.getFiado_conferido(),
+                caixa.getStatus()
         );
     }
 }
