@@ -1,9 +1,12 @@
 package clinina.vet.api.controller;
 
 import clinina.vet.api.caixa.Caixa;
+import clinina.vet.api.caixa.CaixaCompletoDTO;
 import clinina.vet.api.caixa.CaixaDTO;
 import clinina.vet.api.caixa.CaixaRepository;
 import clinina.vet.api.venda.DadosItensVendidos;
+import clinina.vet.api.venda.Venda;
+import clinina.vet.api.venda.VendaRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,17 +21,45 @@ public class CaixaController {
     @Autowired
     private CaixaRepository caixaRepository;
 
+    @Autowired
+    private VendaRepository vendaRepository;
+
     @GetMapping("/buscarCaixa")
-    public CaixaDTO buscarCaixa(@RequestParam int dia, @RequestParam int mes, @RequestParam int ano){
+    public CaixaCompletoDTO buscarCaixa(@RequestParam int dia, @RequestParam int mes, @RequestParam int ano){
         Caixa caixa = caixaRepository.buscarCaixa(dia, mes, ano);
-        CaixaDTO caixaDTO = null;
-        if (caixa != null) {
-            caixaDTO = new CaixaDTO(caixa);
+        CaixaCompletoDTO caixaCompletoDTO = null;
+        List<DadosItensVendidos> venda = this.vendaRepository.buscarItensVendidos(dia, mes, ano, dia, mes, ano);
+        double creditoTotal = 0d;
+        double debitoTotal = 0d;
+        double dinheiroTotal = 0d;
+        double pixTotal = 0d;
+        double fiadoTotal = 0d;
+        if (!venda.isEmpty()) {
+            for (DadosItensVendidos v : venda) {
+                if (v.getPagamento().equals("Crédito")) {
+                    creditoTotal += (v.getPrecoUnitario() - v.getDesconto()) * v.getQuantidade();
+                }
+                else if (v.getPagamento().equals("Débito")) {
+                    debitoTotal += (v.getPrecoUnitario() - v.getDesconto()) * v.getQuantidade();
+                }
+                else if (v.getPagamento().equals("Dinheiro")) {
+                    dinheiroTotal += (v.getPrecoUnitario() - v.getDesconto()) * v.getQuantidade();
+                }
+                else if (v.getPagamento().equals("Pix")) {
+                    pixTotal += (v.getPrecoUnitario() - v.getDesconto()) * v.getQuantidade();
+                }
+                else if (v.getPagamento().equals("Fiado")) {
+                    fiadoTotal += (v.getPrecoUnitario() - v.getDesconto()) * v.getQuantidade();
+                }
+            }
         }
-        return caixaDTO;
+        if (caixa != null) {
+            caixaCompletoDTO = new CaixaCompletoDTO(caixa, creditoTotal, debitoTotal, dinheiroTotal, pixTotal, fiadoTotal);
+        }
+
+        return caixaCompletoDTO;
     }
 
-    //Mudar, não é mais save e criar o abricaxia
     @PutMapping("/fecharCaixa")
     @Transactional
     public void fecharCaixa(@RequestBody CaixaDTO caixaDTO) {
