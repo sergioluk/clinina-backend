@@ -9,6 +9,7 @@ import clinina.vet.api.venda.Venda;
 import clinina.vet.api.venda.VendaRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -83,6 +84,17 @@ public class CaixaController {
     public void abrirCaixa(@RequestBody CaixaDTO caixaDTO) {
         Caixa caixa = new Caixa(caixaDTO);
         this.caixaRepository.save(caixa);
+    }
+
+    @PatchMapping("/{id}/abrirSeFechado")
+    @Transactional
+    public void abrirCaixaSeFechado(@PathVariable Long id) {
+        Optional<Caixa> caixa = this.caixaRepository.findById(id);
+        Caixa caixaEncontrado = new Caixa();
+        if (caixa.isPresent()) {
+            caixaEncontrado = caixa.get();
+        }
+        caixaEncontrado.setStatus("aberto");
     }
 
 }
