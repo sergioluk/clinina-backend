@@ -12,15 +12,10 @@ import javax.sql.DataSource;
 public class AppConfig {
     @Bean
     public DataSource dataSource() {
-        // Carrega o arquivo secrets.env do diretório /etc/secrets/
-        Dotenv dotenv = Dotenv.configure()
-                .directory("/etc/secrets/")
-                .filename("secrets.env")
-                .load();
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(dotenv.get("DATABASE_URL"));
-        config.setUsername(dotenv.get("DATABASE_USERNAME"));
-        config.setPassword(dotenv.get("DATABASE_PASSWORD"));
+        config.setJdbcUrl(System.getenv("DATABASE_URL"));
+        config.setUsername(System.getenv("DATABASE_USERNAME"));
+        config.setPassword(System.getenv("DATABASE_PASSWORD"));
         return new HikariDataSource(config);
     }
 }
