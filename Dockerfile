@@ -2,6 +2,7 @@ FROM ubuntu:latest AS build
 
 RUN apt-get update
 RUN apt-get install openjdk-17-jdk -y
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/secrets.env cat /etc/secrets/secrets.env
 COPY . .
 
 RUN apt-get install maven -y
