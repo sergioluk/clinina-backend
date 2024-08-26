@@ -4,6 +4,10 @@ RUN apt-get update
 RUN apt-get install openjdk-17-jdk -y
 COPY . .
 
+RUN echo "DATABASE_URL=$DATABASE_URL" \
+    && echo "DATABASE_USERNAME=$DATABASE_USERNAME" \
+    && echo "DATABASE_PASSWORD=$DATABASE_PASSWORD"
+
 RUN apt-get install maven -y
 RUN mvn clean install
 
