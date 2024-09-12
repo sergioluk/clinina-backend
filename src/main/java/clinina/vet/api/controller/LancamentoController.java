@@ -1,12 +1,8 @@
 package clinina.vet.api.controller;
 
 import clinina.vet.api.lancamento.*;
-import clinina.vet.api.receita_categoria.ReceitaCategoriaDTO;
-import clinina.vet.api.receita_categoria.ReceitaCategoriaRepository;
+import clinina.vet.api.lancamento.lancamentosdto.ListaLancamentosDTO;
 import clinina.vet.api.receita_categoria.CategoriasDTO;
-import clinina.vet.api.despesa_categoria.DespesaCategoriaDTO;
-import clinina.vet.api.despesa_categoria.DespesaCategoriaRepository;
-import clinina.vet.api.venda.VendaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +29,7 @@ public class LancamentoController {
     }
 
     @GetMapping("/lista")
-    public List<LancamentosDTO> getLancamentos() {
-        return this.lancamentoService.getLancamentos();
+    public List<ListaLancamentosDTO> getLancamentos(@RequestParam String dataInicio, @RequestParam String dataFim) {
+        return this.lancamentoService.getLancamentos(dataInicio, dataFim);
     }
 }

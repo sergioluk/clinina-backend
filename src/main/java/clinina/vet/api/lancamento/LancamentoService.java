@@ -2,6 +2,8 @@ package clinina.vet.api.lancamento;
 
 import clinina.vet.api.despesa_categoria.DespesaCategoriaDTO;
 import clinina.vet.api.despesa_categoria.DespesaCategoriaRepository;
+import clinina.vet.api.lancamento.lancamentosdto.LancamentosDTO;
+import clinina.vet.api.lancamento.lancamentosdto.ListaLancamentosDTO;
 import clinina.vet.api.receita_categoria.CategoriasDTO;
 import clinina.vet.api.receita_categoria.ReceitaCategoriaDTO;
 import clinina.vet.api.receita_categoria.ReceitaCategoriaRepository;
@@ -12,10 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class LancamentoService {
@@ -50,55 +51,156 @@ public class LancamentoService {
         return new CadastroLancamentoDTO(lancamentoCriado);
     }
 
-    public List<LancamentosDTO> getLancamentos() {
+//    public List<ListaLancamentosDTO> getLancamentos() {
+//
+//        CategoriasDTO categorias = this.getCategorias();
+//
+//        List<LancamentosDTO> lancamentos = this.lancamentoRepository.findAll().stream()
+//                .map(l -> new LancamentosDTO(
+//                        l.getId(),
+//                        l.getDataDaReceitaVencimento(),
+//                        getStatus(l),
+//                        l.getDescricao(),
+//                        getNomeCategoria(l.getCategoriaId(),l.getTipoReceita(),categorias),
+//                        l.getValor(),
+//                        l.getTipoReceita()
+//                ))
+//                .toList();
+//
+//        //Criar uma lista mutavel a partir de uma lista imutavel
+//        List<LancamentosDTO> lancamentosMutavel = new ArrayList<>(lancamentos);
+//
+//        for (LancamentosDTO l : lancamentosMutavel) {
+//            System.out.println(l.descricao() + " " + l.dataDaReceitaVencimento());
+//        }
+//
+//        lancamentosMutavel.sort((l1, l2) -> l2.dataDaReceitaVencimento().compareTo(l1.dataDaReceitaVencimento()));
+//
+//        List<ListaLancamentosDTO> listaLancamentos = new ArrayList<>();
+//
+//        Date data = null;
+//        ListaLancamentosDTO objLancamento = null;
+//
+//        for (int i = 0; i < lancamentosMutavel.size(); i++) {
+//            if (i == 0) {
+//                data = lancamentosMutavel.get(i).dataDaReceitaVencimento();
+//                objLancamento = new ListaLancamentosDTO(data, new ArrayList<LancamentosDTO>());
+//            }
+//            if (data.getMonth() == lancamentosMutavel.get(i).dataDaReceitaVencimento().getMonth()) {
+//                if (data.getDate() == lancamentosMutavel.get(i).dataDaReceitaVencimento().getDate() ) {
+//                    objLancamento.lancamentos().add(lancamentosMutavel.get(i));
+//                } else {
+//                    data = lancamentosMutavel.get(i).dataDaReceitaVencimento();
+//                    listaLancamentos.add(objLancamento);
+//                    objLancamento = new ListaLancamentosDTO(data, new ArrayList<LancamentosDTO>());
+//                    objLancamento.lancamentos().add(lancamentosMutavel.get(i));
+//                }
+//            } else {
+//                data = lancamentosMutavel.get(i).dataDaReceitaVencimento();
+//                objLancamento = new ListaLancamentosDTO(data, new ArrayList<LancamentosDTO>());
+//                objLancamento.lancamentos().add(lancamentosMutavel.get(i));
+//                listaLancamentos.add(objLancamento);
+//            }
+//
+//        }
+//
+//        double total = this.vendaRepository.totalVendasLancamento(8,9,2024,8,9,2024);
+//        LancamentosDTO vendasDoDia = new LancamentosDTO(0L, new Date(), "Pago", "Vendas diárias", "Vendas diárias", total, "receita");
+//
+//        lancamentosMutavel.add(vendasDoDia);
+//
+//        return listaLancamentos;
+//    }
+
+    public List<ListaLancamentosDTO> getLancamentos(String dataInicio, String dataFim) {
+
+        LocalDate localDate = LocalDate.parse(dataInicio, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int inicioDia = localDate.getDayOfMonth();
+        int inicioMes = localDate.getMonthValue();
+        int inicioAno = localDate.getYear();
+        localDate = LocalDate.parse(dataFim, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int fimDia = localDate.getDayOfMonth();
+        int fimMes = localDate.getMonthValue();
+        int fimAno = localDate.getYear();
 
         CategoriasDTO categorias = this.getCategorias();
 
-        List<LancamentosDTO> lancamentos = this.lancamentoRepository.findAll().stream()
-                .map(l -> new LancamentosDTO(
+        List<LancamentosDTO> lancamentos = this.lancamentoRepository.getLancamentosPorData(inicioDia,inicioMes,inicioAno,fimDia,fimMes,fimAno)
+                .stream().map(l -> new LancamentosDTO(
                         l.getId(),
                         l.getDataDaReceitaVencimento(),
                         getStatus(l),
                         l.getDescricao(),
-                        getNomeCategoria(l.getCategoriaId(),l.getTipoReceita(),categorias),
+                        getNomeCategoria(l.getCategoriaId(), l.getTipoReceita(), categorias),
                         l.getValor(),
                         l.getTipoReceita()
                 ))
                 .toList();
+//        List<LancamentosDTO> lancamentos = this.lancamentoRepository.findAll().stream()
+//                .map(l -> new LancamentosDTO(
+//                        l.getId(),
+//                        l.getDataDaReceitaVencimento(),
+//                        getStatus(l),
+//                        l.getDescricao(),
+//                        getNomeCategoria(l.getCategoriaId(), l.getTipoReceita(), categorias),
+//                        l.getValor(),
+//                        l.getTipoReceita()
+//                ))
+//                .toList();
 
-        //Criar uma lista mutavel a partir de uma lista imutavel
+        // Criar uma lista mutável a partir de uma lista imutável
         List<LancamentosDTO> lancamentosMutavel = new ArrayList<>(lancamentos);
 
-        double total = this.vendaRepository.totalVendasLancamento(8,9,2024,8,9,2024);
+        // Ordenar os lançamentos por data de forma decrescente
+        lancamentosMutavel.sort((l1, l2) -> l2.dataDaReceitaVencimento().compareTo(l1.dataDaReceitaVencimento()));
+
+        List<ListaLancamentosDTO> listaLancamentos = new ArrayList<>();
+        Map<String, ListaLancamentosDTO> agrupamentoPorData = new LinkedHashMap<>();
+
+        for (LancamentosDTO lancamento : lancamentosMutavel) {
+            Date data = lancamento.dataDaReceitaVencimento();
+            String chaveData = String.format("%d-%02d-%02d", data.getYear(), data.getMonth(), data.getDate());
+
+            if (!agrupamentoPorData.containsKey(chaveData)) {
+                // Se não existe um agrupamento para essa data, cria um novo
+                agrupamentoPorData.put(chaveData, new ListaLancamentosDTO(data, new ArrayList<>()));
+            }
+
+            // Adiciona o lançamento ao grupo da data correspondente
+            agrupamentoPorData.get(chaveData).lancamentos().add(lancamento);
+        }
+
+        // Adicionar os grupos ao resultado final
+        listaLancamentos.addAll(agrupamentoPorData.values());
+
+        // Total de vendas do dia
+        double total = this.vendaRepository.totalVendasLancamento(inicioDia, inicioMes, inicioAno, fimDia, fimMes, fimAno);
         LancamentosDTO vendasDoDia = new LancamentosDTO(0L, new Date(), "Pago", "Vendas diárias", "Vendas diárias", total, "receita");
+        ListaLancamentosDTO vendas = new ListaLancamentosDTO(new Date(), new ArrayList<>());
+        vendas.lancamentos().add(vendasDoDia);
 
-        lancamentosMutavel.add(vendasDoDia);
+        listaLancamentos.add(0, vendas);
 
-        return lancamentosMutavel;
+        return listaLancamentos;
     }
+
 
     private String getStatus(Lancamento l) {
         String status = "";
-        LocalDate dataVencimento = l.getDataDaReceitaVencimento().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate dataHoje = LocalDate.now();
+        LocalDate dataVencimento = l.getDataDaReceitaVencimento().toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+        LocalDate dataHoje = LocalDate.now(ZoneId.of("UTC"));
 
         long diferencaDias = ChronoUnit.DAYS.between(dataHoje, dataVencimento);
-        long diasParaAVencer = 5;
 
         if (l.getDataRecebimentoPagamento() != null) {
             status = "Pago";
         } else if (diferencaDias == 0) {
             status = "Vence hoje";
-        } else if (diferencaDias > 0 && diferencaDias <= diasParaAVencer) {
-            status = "A vencer";
         } else if (diferencaDias < 0) {
             status = "Vencido";
+        } else {
+            status = "A vencer";
         }
-
-        System.out.println("Data vencimento: " + dataVencimento);
-        System.out.println("Data Hoje: " + dataHoje);
-        System.out.println("Diferenca entre dias: " + diferencaDias);
-        System.out.println("---------------------");
 
         return status;
     }

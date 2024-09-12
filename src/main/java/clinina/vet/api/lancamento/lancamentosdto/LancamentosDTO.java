@@ -1,4 +1,4 @@
-package clinina.vet.api.lancamento;
+package clinina.vet.api.lancamento.lancamentosdto;
 
 import java.util.Date;
 
