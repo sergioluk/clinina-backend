@@ -125,6 +125,29 @@ public class LancamentoService {
 
         CategoriasDTO categorias = this.getCategorias();
 
+        /**/
+        List<LancamentosDTO> lancamentosTotal = this.lancamentoRepository.findAll().stream()
+                .map(l -> new LancamentosDTO(
+                        l.getId(),
+                        l.getDataDaReceitaVencimento(),
+                        getStatus(l),
+                        l.getDescricao(),
+                        getNomeCategoria(l.getCategoriaId(), l.getTipoReceita(), categorias),
+                        l.getValor(),
+                        l.getTipoReceita()
+                ))
+                .toList();
+        double receitasTotal = 0;
+        double despesasTotal = 0;
+        for (LancamentosDTO l : lancamentosTotal) {
+            if (l.tipoReceita().equals("receita")) {
+                receitasTotal += l.valor();
+            } else if (l.tipoReceita().equals("despesa")) {
+                despesasTotal += l.valor();
+            }
+        }
+        /**/
+
         List<LancamentosDTO> lancamentos = this.lancamentoRepository.getLancamentosPorData(inicioDia,inicioMes,inicioAno,fimDia,fimMes,fimAno)
                 .stream().map(l -> new LancamentosDTO(
                         l.getId(),
@@ -136,17 +159,7 @@ public class LancamentoService {
                         l.getTipoReceita()
                 ))
                 .toList();
-//        List<LancamentosDTO> lancamentos = this.lancamentoRepository.findAll().stream()
-//                .map(l -> new LancamentosDTO(
-//                        l.getId(),
-//                        l.getDataDaReceitaVencimento(),
-//                        getStatus(l),
-//                        l.getDescricao(),
-//                        getNomeCategoria(l.getCategoriaId(), l.getTipoReceita(), categorias),
-//                        l.getValor(),
-//                        l.getTipoReceita()
-//                ))
-//                .toList();
+
 
         // Criar uma lista mutável a partir de uma lista imutável
         List<LancamentosDTO> lancamentosMutavel = new ArrayList<>(lancamentos);
