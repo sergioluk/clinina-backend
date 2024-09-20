@@ -4,6 +4,7 @@ import clinina.vet.api.despesa_categoria.DespesaCategoriaDTO;
 import clinina.vet.api.despesa_categoria.DespesaCategoriaRepository;
 import clinina.vet.api.lancamento.lancamentosdto.LancamentosDTO;
 import clinina.vet.api.lancamento.lancamentosdto.ListaLancamentosDTO;
+import clinina.vet.api.lancamento.lancamentosdto.PaginaLancamentosDTO;
 import clinina.vet.api.receita_categoria.CategoriasDTO;
 import clinina.vet.api.receita_categoria.ReceitaCategoriaDTO;
 import clinina.vet.api.receita_categoria.ReceitaCategoriaRepository;
@@ -45,10 +46,27 @@ public class LancamentoService {
     }
 
     @Transactional
-    public CadastroLancamentoDTO cadastrar (CadastroLancamentoDTO lancamentoDTO) {
-        Lancamento lancamento = new Lancamento(lancamentoDTO);
-        Lancamento lancamentoCriado = this.lancamentoRepository.save(lancamento);
-        return new CadastroLancamentoDTO(lancamentoCriado);
+    public List<CadastroLancamentoDTO> cadastrar (CadastroLancamentoDTO lancamentoDTO) {
+        List<CadastroLancamentoDTO> listaRetornada = new ArrayList<>();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(lancamentoDTO.dataDaReceitaVencimento());
+
+        for (int i = 0; i < lancamentoDTO.quantidadeParcelas(); i++) {
+
+            Lancamento lancamento = new Lancamento(lancamentoDTO);
+
+            lancamento.setValor(lancamento.getValor() / lancamento.getQuantidadeParcelas());
+
+            if ( i > 0 ) {
+                calendar.add(Calendar.MONTH, 1);// Incrementa 1 mês a cada parcela
+            }
+            lancamento.setDataDaReceitaVencimento(calendar.getTime());
+            Lancamento lancamentoCriado = this.lancamentoRepository.save(lancamento);
+            listaRetornada.add(new CadastroLancamentoDTO(lancamentoCriado));
+        }
+
+        return listaRetornada;
     }
 
 //    public List<ListaLancamentosDTO> getLancamentos() {
@@ -112,46 +130,52 @@ public class LancamentoService {
 //        return listaLancamentos;
 //    }
 
-    public List<ListaLancamentosDTO> getLancamentos(String dataInicio, String dataFim) {
+    public PaginaLancamentosDTO getLancamentos(String dataInicio, String dataFim) {
 
-        LocalDate localDate = LocalDate.parse(dataInicio, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        int inicioDia = localDate.getDayOfMonth();
-        int inicioMes = localDate.getMonthValue();
-        int inicioAno = localDate.getYear();
-        localDate = LocalDate.parse(dataFim, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        int fimDia = localDate.getDayOfMonth();
-        int fimMes = localDate.getMonthValue();
-        int fimAno = localDate.getYear();
+        LocalDate localDateInicio = LocalDate.parse(dataInicio, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int inicioDia = localDateInicio.getDayOfMonth();
+        int inicioMes = localDateInicio.getMonthValue();
+        int inicioAno = localDateInicio.getYear();
+        LocalDate localDateFim = LocalDate.parse(dataFim, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int fimDia = localDateFim.getDayOfMonth();
+        int fimMes = localDateFim.getMonthValue();
+        int fimAno = localDateFim.getYear();
 
         CategoriasDTO categorias = this.getCategorias();
 
         /**/
-        List<LancamentosDTO> lancamentosTotal = this.lancamentoRepository.findAll().stream()
-                .map(l -> new LancamentosDTO(
-                        l.getId(),
-                        l.getDataDaReceitaVencimento(),
-                        getStatus(l),
-                        l.getDescricao(),
-                        getNomeCategoria(l.getCategoriaId(), l.getTipoReceita(), categorias),
-                        l.getValor(),
-                        l.getTipoReceita()
-                ))
-                .toList();
-        double receitasTotal = 0;
-        double despesasTotal = 0;
-        for (LancamentosDTO l : lancamentosTotal) {
-            if (l.tipoReceita().equals("receita")) {
-                receitasTotal += l.valor();
-            } else if (l.tipoReceita().equals("despesa")) {
-                despesasTotal += l.valor();
+        double projecaoSaldo = 0;
+        double saldoAtual = 0;
+        double saldoAnterior = 0;
+        List<Object[]>  somaReceitasDespesas = this.lancamentoRepository.getLancamentoSums(localDateInicio, localDateFim);
+        if (somaReceitasDespesas != null && !somaReceitasDespesas.isEmpty()) {
+            Object[] row = somaReceitasDespesas.get(0);
+            if (row[0] != null && row[1] != null && row[2] != null && row[3] != null && row[4] != null && row[5] != null) {
+                Double totalDespesas = ((Number) row[0]).doubleValue();
+                Double totalReceitas = ((Number) row[1]).doubleValue();
+                Double totalDespesasPeriodo = ((Number) row[2]).doubleValue();
+                Double totalReceitasPeriodo = ((Number) row[3]).doubleValue();
+                Double totalDespesasPeriodoAnterior = ((Number) row[4]).doubleValue();
+                Double totalReceitasPeriodoAnterior = ((Number) row[5]).doubleValue();
+
+                projecaoSaldo = totalReceitas - totalDespesas;
+                saldoAtual = totalReceitasPeriodo - totalDespesasPeriodo;
+                saldoAnterior = totalReceitasPeriodoAnterior - totalDespesasPeriodoAnterior;
+
+                System.out.println("Total Despesas: " + totalDespesas);
+                System.out.println("Total Receitas: " + totalReceitas);
+                System.out.println("Total Despesas Periodo da data " + localDateInicio.toString() + " e " + localDateFim.toString() + ": " + totalDespesasPeriodo);
+                System.out.println("Total Receitas Periodo da data " + localDateInicio.toString() + " e " + localDateFim.toString() + ": " + totalReceitasPeriodo);
             }
         }
+
         /**/
 
         List<LancamentosDTO> lancamentos = this.lancamentoRepository.getLancamentosPorData(inicioDia,inicioMes,inicioAno,fimDia,fimMes,fimAno)
                 .stream().map(l -> new LancamentosDTO(
                         l.getId(),
                         l.getDataDaReceitaVencimento(),
+                        l.getDataRecebimentoPagamento(),
                         getStatus(l),
                         l.getDescricao(),
                         getNomeCategoria(l.getCategoriaId(), l.getTipoReceita(), categorias),
@@ -165,18 +189,44 @@ public class LancamentoService {
         List<LancamentosDTO> lancamentosMutavel = new ArrayList<>(lancamentos);
 
         // Ordenar os lançamentos por data de forma decrescente
-        lancamentosMutavel.sort((l1, l2) -> l2.dataDaReceitaVencimento().compareTo(l1.dataDaReceitaVencimento()));
+        //lancamentosMutavel.sort((l1, l2) -> l2.dataDaReceitaVencimento().compareTo(l1.dataDaReceitaVencimento()));
+        // Ordenar os lançamentos por data de pagamento ou data de vencimento de forma decrescente
+        lancamentosMutavel.sort((l1, l2) -> {
+            // Usar dataRecebimentoPagamento se disponível, senão usar dataDaReceitaVencimento
+            Date dataL1 = l1.dataRecebimentoPagamento() != null ? l1.dataRecebimentoPagamento() : l1.dataDaReceitaVencimento();
+            Date dataL2 = l2.dataRecebimentoPagamento() != null ? l2.dataRecebimentoPagamento() : l2.dataDaReceitaVencimento();
+
+            // Comparar as datas de forma decrescente
+            return dataL2.compareTo(dataL1);
+        });
 
         List<ListaLancamentosDTO> listaLancamentos = new ArrayList<>();
         Map<String, ListaLancamentosDTO> agrupamentoPorData = new LinkedHashMap<>();
 
+//        for (LancamentosDTO lancamento : lancamentosMutavel) {
+//            Date data = lancamento.dataDaReceitaVencimento();
+//            String chaveData = String.format("%d-%02d-%02d", data.getYear(), data.getMonth(), data.getDate());
+//
+//            if (!agrupamentoPorData.containsKey(chaveData)) {
+//                // Se não existe um agrupamento para essa data, cria um novo
+//                agrupamentoPorData.put(chaveData, new ListaLancamentosDTO(data, new ArrayList<>()));
+//            }
+//
+//            // Adiciona o lançamento ao grupo da data correspondente
+//            agrupamentoPorData.get(chaveData).lancamentos().add(lancamento);
+//        }
         for (LancamentosDTO lancamento : lancamentosMutavel) {
-            Date data = lancamento.dataDaReceitaVencimento();
-            String chaveData = String.format("%d-%02d-%02d", data.getYear(), data.getMonth(), data.getDate());
+            // Verificar se o lançamento tem a dataRecebimentoPagamento (ou seja, está pago)
+            Date dataAgrupamento = lancamento.dataRecebimentoPagamento() != null
+                    ? lancamento.dataRecebimentoPagamento()  // Se pago, usa a data de recebimento
+                    : lancamento.dataDaReceitaVencimento();  // Caso contrário, usa a data de vencimento
+
+            // Formatar a data de agrupamento no formato desejado
+            String chaveData = String.format("%d-%02d-%02d", dataAgrupamento.getYear(), dataAgrupamento.getMonth(), dataAgrupamento.getDate());
 
             if (!agrupamentoPorData.containsKey(chaveData)) {
                 // Se não existe um agrupamento para essa data, cria um novo
-                agrupamentoPorData.put(chaveData, new ListaLancamentosDTO(data, new ArrayList<>()));
+                agrupamentoPorData.put(chaveData, new ListaLancamentosDTO(dataAgrupamento, new ArrayList<>()));
             }
 
             // Adiciona o lançamento ao grupo da data correspondente
@@ -188,13 +238,15 @@ public class LancamentoService {
 
         // Total de vendas do dia
         double total = this.vendaRepository.totalVendasLancamento(inicioDia, inicioMes, inicioAno, fimDia, fimMes, fimAno);
-        LancamentosDTO vendasDoDia = new LancamentosDTO(0L, new Date(), "Pago", "Vendas diárias", "Vendas diárias", total, "receita");
+        LancamentosDTO vendasDoDia = new LancamentosDTO(0L, new Date(), new Date(),"Pago", "Vendas diárias", "Vendas diárias", total, "receita");
         ListaLancamentosDTO vendas = new ListaLancamentosDTO(new Date(), new ArrayList<>());
         vendas.lancamentos().add(vendasDoDia);
 
-        listaLancamentos.add(0, vendas);
+        //listaLancamentos.add(0, vendas);
 
-        return listaLancamentos;
+        PaginaLancamentosDTO paginaLancamento = new PaginaLancamentosDTO(0,0,projecaoSaldo, saldoAnterior, saldoAtual, listaLancamentos);
+
+        return paginaLancamento;
     }
 
 
