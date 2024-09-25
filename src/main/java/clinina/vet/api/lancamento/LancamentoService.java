@@ -60,6 +60,9 @@ public class LancamentoService {
 
             if ( i > 0 ) {
                 calendar.add(Calendar.MONTH, 1);// Incrementa 1 mês a cada parcela
+                if (lancamento.getQuantidadeParcelas() > 0 ) {
+                    lancamento.setDataDaReceitaVencimento(null);
+                }
             }
             lancamento.setDataDaReceitaVencimento(calendar.getTime());
             Lancamento lancamentoCriado = this.lancamentoRepository.save(lancamento);
@@ -150,16 +153,18 @@ public class LancamentoService {
         List<Object[]>  somaReceitasDespesas = this.lancamentoRepository.getLancamentoSums(localDateInicio, localDateFim);
         if (somaReceitasDespesas != null && !somaReceitasDespesas.isEmpty()) {
             Object[] row = somaReceitasDespesas.get(0);
-            if (row[0] != null && row[1] != null && row[2] != null && row[3] != null && row[4] != null && row[5] != null) {
+            if (row[0] != null && row[1] != null && row[2] != null && row[3] != null && row[4] != null && row[5] != null && row[6] != null && row[7] != null) {
                 Double totalDespesas = ((Number) row[0]).doubleValue();
                 Double totalReceitas = ((Number) row[1]).doubleValue();
                 Double totalDespesasPeriodo = ((Number) row[2]).doubleValue();
                 Double totalReceitasPeriodo = ((Number) row[3]).doubleValue();
                 Double totalDespesasPeriodoAnterior = ((Number) row[4]).doubleValue();
                 Double totalReceitasPeriodoAnterior = ((Number) row[5]).doubleValue();
+                Double totalDespesasSaldoAtual = ((Number) row[6]).doubleValue();
+                Double totalReceitasSaldoAtual = ((Number) row[7]).doubleValue();
 
                 projecaoSaldo = totalReceitas - totalDespesas;
-                saldoAtual = totalReceitasPeriodo - totalDespesasPeriodo;
+                saldoAtual = totalReceitasSaldoAtual - totalDespesasSaldoAtual;
                 saldoAnterior = totalReceitasPeriodoAnterior - totalDespesasPeriodoAnterior;
 
                 System.out.println("Total Despesas: " + totalDespesas);
