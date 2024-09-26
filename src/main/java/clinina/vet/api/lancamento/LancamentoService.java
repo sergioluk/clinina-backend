@@ -2,9 +2,7 @@ package clinina.vet.api.lancamento;
 
 import clinina.vet.api.despesa_categoria.DespesaCategoriaDTO;
 import clinina.vet.api.despesa_categoria.DespesaCategoriaRepository;
-import clinina.vet.api.lancamento.lancamentosdto.LancamentosDTO;
-import clinina.vet.api.lancamento.lancamentosdto.ListaLancamentosDTO;
-import clinina.vet.api.lancamento.lancamentosdto.PaginaLancamentosDTO;
+import clinina.vet.api.lancamento.lancamentosdto.*;
 import clinina.vet.api.receita_categoria.CategoriasDTO;
 import clinina.vet.api.receita_categoria.ReceitaCategoriaDTO;
 import clinina.vet.api.receita_categoria.ReceitaCategoriaRepository;
@@ -150,10 +148,13 @@ public class LancamentoService {
         double projecaoSaldo = 0;
         double saldoAtual = 0;
         double saldoAnterior = 0;
+        double aPagar = 0;
+        double aReceber = 0;
         List<Object[]>  somaReceitasDespesas = this.lancamentoRepository.getLancamentoSums(localDateInicio, localDateFim);
         if (somaReceitasDespesas != null && !somaReceitasDespesas.isEmpty()) {
             Object[] row = somaReceitasDespesas.get(0);
-            if (row[0] != null && row[1] != null && row[2] != null && row[3] != null && row[4] != null && row[5] != null && row[6] != null && row[7] != null) {
+            if (row[0] != null && row[1] != null && row[2] != null && row[3] != null && row[4] != null
+                    && row[5] != null && row[6] != null && row[7] != null && row[8] != null && row[9] != null) {
                 Double totalDespesas = ((Number) row[0]).doubleValue();
                 Double totalReceitas = ((Number) row[1]).doubleValue();
                 Double totalDespesasPeriodo = ((Number) row[2]).doubleValue();
@@ -162,15 +163,14 @@ public class LancamentoService {
                 Double totalReceitasPeriodoAnterior = ((Number) row[5]).doubleValue();
                 Double totalDespesasSaldoAtual = ((Number) row[6]).doubleValue();
                 Double totalReceitasSaldoAtual = ((Number) row[7]).doubleValue();
+                Double totalDespesasAPagar = ((Number) row[8]).doubleValue();
+                Double totalReceitasSAReceber = ((Number) row[9]).doubleValue();
 
                 projecaoSaldo = totalReceitas - totalDespesas;
                 saldoAtual = totalReceitasSaldoAtual - totalDespesasSaldoAtual;
                 saldoAnterior = totalReceitasPeriodoAnterior - totalDespesasPeriodoAnterior;
-
-                System.out.println("Total Despesas: " + totalDespesas);
-                System.out.println("Total Receitas: " + totalReceitas);
-                System.out.println("Total Despesas Periodo da data " + localDateInicio.toString() + " e " + localDateFim.toString() + ": " + totalDespesasPeriodo);
-                System.out.println("Total Receitas Periodo da data " + localDateInicio.toString() + " e " + localDateFim.toString() + ": " + totalReceitasPeriodo);
+                aPagar = totalDespesasAPagar;
+                aReceber = totalReceitasSAReceber;
             }
         }
 
@@ -208,6 +208,8 @@ public class LancamentoService {
         List<ListaLancamentosDTO> listaLancamentos = new ArrayList<>();
         Map<String, ListaLancamentosDTO> agrupamentoPorData = new LinkedHashMap<>();
 
+        ListasPorcentagemCategoriasDTO listasPorcentagemCategorias = new ListasPorcentagemCategoriasDTO(null, null);
+
 //        for (LancamentosDTO lancamento : lancamentosMutavel) {
 //            Date data = lancamento.dataDaReceitaVencimento();
 //            String chaveData = String.format("%d-%02d-%02d", data.getYear(), data.getMonth(), data.getDate());
@@ -220,7 +222,26 @@ public class LancamentoService {
 //            // Adiciona o lançamento ao grupo da data correspondente
 //            agrupamentoPorData.get(chaveData).lancamentos().add(lancamento);
 //        }
+
+        //Map para contar quantos lançamentos tem por cada categoria
+        Map<String, Integer> contagemPorCategoriaReceita = new HashMap<>();
+        Map<String, Integer> contagemPorCategoriaDespesa = new HashMap<>();
+
+        int qtdLancReceita = 0;
+        int qtdLancDespesa = 0;
         for (LancamentosDTO lancamento : lancamentosMutavel) {
+
+            //Contar quantos lancamentos por tem por categoria
+            String categoria = lancamento.categoriaNome();
+            if (lancamento.tipoReceita().equals("receita")) {
+                contagemPorCategoriaReceita.put(categoria, contagemPorCategoriaReceita.getOrDefault(categoria, 0) + 1);
+                qtdLancReceita++;
+            } else if (lancamento.tipoReceita().equals("despesa")) {
+                contagemPorCategoriaDespesa.put(categoria, contagemPorCategoriaDespesa.getOrDefault(categoria, 0) + 1);
+                qtdLancDespesa++;
+            }
+
+
             // Verificar se o lançamento tem a dataRecebimentoPagamento (ou seja, está pago)
             Date dataAgrupamento = lancamento.dataRecebimentoPagamento() != null
                     ? lancamento.dataRecebimentoPagamento()  // Se pago, usa a data de recebimento
@@ -230,13 +251,33 @@ public class LancamentoService {
             String chaveData = String.format("%d-%02d-%02d", dataAgrupamento.getYear(), dataAgrupamento.getMonth(), dataAgrupamento.getDate());
 
             if (!agrupamentoPorData.containsKey(chaveData)) {
-                // Se não existe um agrupamento para essa data, cria um novo
+                // Se não existir um agrupamento para essa data, criar um novo
                 agrupamentoPorData.put(chaveData, new ListaLancamentosDTO(dataAgrupamento, new ArrayList<>()));
             }
 
             // Adiciona o lançamento ao grupo da data correspondente
             agrupamentoPorData.get(chaveData).lancamentos().add(lancamento);
         }
+
+
+        List<CategoriaPorcentagemDTO> listaPorcentagemReceitas = new ArrayList<>();
+        List<CategoriaPorcentagemDTO> listaPorcentagemDespesas = new ArrayList<>();
+        //Calcular porcentagem das categorias
+        for(Map.Entry<String, Integer> entry : contagemPorCategoriaReceita.entrySet()) {
+            String categoria = entry.getKey();
+            int quantidade = entry.getValue();
+            double porcentagem = (quantidade / (double) qtdLancReceita) * 100;
+            listaPorcentagemReceitas.add(new CategoriaPorcentagemDTO(categoria, porcentagem));
+        }
+        for(Map.Entry<String, Integer> entry : contagemPorCategoriaDespesa.entrySet()) {
+            String categoria = entry.getKey();
+            int quantidade = entry.getValue();
+            double porcentagem = (quantidade / (double) qtdLancDespesa) * 100;
+            listaPorcentagemDespesas.add(new CategoriaPorcentagemDTO(categoria, porcentagem));
+        }
+
+        listasPorcentagemCategorias.setReceitas(listaPorcentagemReceitas);
+        listasPorcentagemCategorias.setDespesas(listaPorcentagemDespesas);
 
         // Adicionar os grupos ao resultado final
         listaLancamentos.addAll(agrupamentoPorData.values());
@@ -249,7 +290,7 @@ public class LancamentoService {
 
         //listaLancamentos.add(0, vendas);
 
-        PaginaLancamentosDTO paginaLancamento = new PaginaLancamentosDTO(0,0,projecaoSaldo, saldoAnterior, saldoAtual, listaLancamentos);
+        PaginaLancamentosDTO paginaLancamento = new PaginaLancamentosDTO(aReceber,aPagar,projecaoSaldo, saldoAnterior, saldoAtual, listaLancamentos, listasPorcentagemCategorias, new Date());
 
         return paginaLancamento;
     }

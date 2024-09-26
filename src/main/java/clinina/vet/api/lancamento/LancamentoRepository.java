@@ -20,7 +20,9 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
             "SUM(CASE WHEN l.tipo_receita = 'despesa' AND l.data_da_receita_vencimento < :localDateInicio THEN l.valor ELSE 0 END) AS totalDespesasPeriodoAnterior, " +
             "SUM(CASE WHEN l.tipo_receita = 'receita' AND l.data_da_receita_vencimento < :localDateInicio THEN l.valor ELSE 0 END) AS totalReceitasPeriodoAnterior, " +
             "SUM(CASE WHEN l.tipo_receita = 'despesa' AND l.data_da_receita_vencimento <= CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalDespesasSaldoAtual, " +
-            "SUM(CASE WHEN l.tipo_receita = 'receita' AND l.data_da_receita_vencimento <= CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalReceitasSaldoAtual " +
+            "SUM(CASE WHEN l.tipo_receita = 'receita' AND l.data_da_receita_vencimento <= CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalReceitasSaldoAtual, " +
+            "SUM(CASE WHEN l.tipo_receita = 'despesa' AND l.data_da_receita_vencimento > CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalDespesasAPagar, " +
+            "SUM(CASE WHEN l.tipo_receita = 'receita' AND l.data_da_receita_vencimento > CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalReceitasSAReceber " +
             "FROM lancamentos l;" , nativeQuery = true)
     List<Object[]>  getLancamentoSums(@Param("localDateInicio") LocalDate localDateInicio, @Param("localDateFim") LocalDate localDateFim);
 
