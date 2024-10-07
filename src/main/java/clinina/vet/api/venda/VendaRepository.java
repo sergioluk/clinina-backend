@@ -28,4 +28,10 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
     @Query(value = "SELECT * FROM vendas WHERE produto_id = :produtoId AND data >= CURDATE() - INTERVAL :dias DAY;", nativeQuery = true)
     List<Venda>listaLinhaDoTempoComParam(@Param("produtoId") Long produtoId ,@Param("dias") int dias);
 
+//    @Query(value = "SELECT v.data, v.preco_total from vendas v where data >= CONCAT(:start_ano, '-', :start_mes, '-', :start_dia, ' 00:00:00') and data <= CONCAT(:end_ano, '-', :end_mes, '-', :end_dia, ' 23:59:59') ORDER BY v.data DESC;", nativeQuery = true)
+//    List<Venda> vendasDataTotal(@Param("start_dia") int start_dia, @Param("start_mes") int start_mes, @Param("start_ano") int start_ano,@Param("end_dia") int end_dia, @Param("end_mes") int end_mes, @Param("end_ano") int end_ano);
+
+    @Query(value = "SELECT v.data, SUM(v.preco_total) FROM vendas v WHERE DATE(v.data) >= CONCAT(:start_ano, '-', :start_mes, '-', :start_dia, ' 00:00:00') AND DATE(v.data) <= CONCAT(:end_ano, '-', :end_mes, '-', :end_dia, ' 23:59:59') GROUP BY DATE(v.data) ORDER BY DATE(v.data) DESC", nativeQuery = true)
+    List<Object[]> vendasDataTotal(@Param("start_dia") int start_dia, @Param("start_mes") int start_mes, @Param("start_ano") int start_ano, @Param("end_dia") int end_dia, @Param("end_mes") int end_mes, @Param("end_ano") int end_ano);
+
 }
