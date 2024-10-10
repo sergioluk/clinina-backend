@@ -287,7 +287,7 @@ public class LancamentoService {
                 System.out.println(dataLancamentoSemHora + "(" + l.data() + ")" + " : " + dataVendaSemHora + "(" + dataVenda + ")" + "? "  + dataLancamentoSemHora.equals(dataVendaSemHora));
                 if (dataLancamentoSemHora.equals(dataVendaSemHora)) {
                     //Adicione o LancementosDTO ao lancamentos existente
-                    l.lancamentos().add(vendaDesseDia);
+                    l.lancamentos().add(0, vendaDesseDia);
                     encontrado = true;
                     System.out.println("Isso tem que aparecer uma vez só");
                     break; // Sai do loop já que encontramos a data
