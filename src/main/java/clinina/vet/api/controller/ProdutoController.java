@@ -263,21 +263,25 @@ public RelatorioDTO pegarListaDeItensVendidos(@RequestParam int start_dia,
         List<Double> listaTotalVendas = new ArrayList<>();
         YearMonth anoMes = YearMonth.of(start_ano, start_mes);
         int diasNoMes = anoMes.lengthOfMonth();
+        int graficoIndex = 0;
         for (int i = 1; i <= diasNoMes; i++) {
-            GraficoDTO g = grafico.get(i - 1);// Corrigindo o índice para começar do zero
-            LocalDate localDate = g.data().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            int numeroDia = localDate.getDayOfMonth();
-            if (numeroDia == i) {
-                listaTotalVendas.add(g.total_vendas());
+            if (graficoIndex < grafico.size()) {
+                GraficoDTO g = grafico.get(graficoIndex);
+                LocalDate localDate = ((java.sql.Date) g.data()).toLocalDate();
+                int numeroDia = localDate.getDayOfMonth();
+
+                if (numeroDia == i) {
+                    // Se o dia no grafico corresponder ao dia atual, adiciona o valor
+                    listaTotalVendas.add(g.total_vendas());
+                    graficoIndex++; // Avança para o próximo registro de vendas
+                } else {
+                    // Não há venda nesse dia
+                    listaTotalVendas.add(0d);
+                }
             } else {
+                // Para os dias restantes sem registros de vendas
                 listaTotalVendas.add(0d);
             }
-        }
-        for (int i = 0; i < grafico.size(); i++) {
-            System.out.println("Dia " + (i + 1) + " Valor: " + grafico.get(i).total_vendas() + " Data " + grafico.get(i).data());
-        }
-        for (int i = 0; i < listaTotalVendas.size(); i++) {
-            //System.out.println("Dia " + (i + 1) + " Valor: " + listaTotalVendas.get(i));
         }
         //Fim parte do Grafico
 
