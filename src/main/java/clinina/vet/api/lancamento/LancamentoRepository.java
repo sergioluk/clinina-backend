@@ -20,8 +20,10 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
             "SUM(CASE WHEN l.tipo_receita = 'despesa' AND l.data_da_receita_vencimento <= CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalDespesasSaldoAtual, " +
             "SUM(CASE WHEN l.tipo_receita = 'receita' AND l.data_da_receita_vencimento <= CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalReceitasSaldoAtual, " +
             "SUM(CASE WHEN l.tipo_receita = 'despesa' AND l.data_da_receita_vencimento > CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalDespesasAPagar, " +
-            "SUM(CASE WHEN l.tipo_receita = 'receita' AND l.data_da_receita_vencimento > CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalReceitasSAReceber " +
+            "SUM(CASE WHEN l.tipo_receita = 'receita' AND l.data_da_receita_vencimento > CURRENT_DATE() THEN l.valor ELSE 0 END) AS totalReceitasSAReceber, " +
+            "SUM(CASE WHEN l.tipo_receita = 'receita' AND l.data_da_receita_vencimento >= :localDateInicio AND l.data_da_receita_vencimento <= :localDateFim  THEN l.valor ELSE 0 END) AS totalReceitasPeriodo, " +
+            "SUM(CASE WHEN l.tipo_receita = 'despesa' AND l.data_da_receita_vencimento >= :localDateInicio AND l.data_da_receita_vencimento <= :localDateFim  THEN l.valor ELSE 0 END) AS totalDespesasPeriodo " +
             "FROM lancamentos l;" , nativeQuery = true)
-    List<Object[]>  getLancamentoSums(@Param("localDateInicio") LocalDate localDateInicio);
+    List<Object[]>  getLancamentoSums(@Param("localDateInicio") LocalDate localDateInicio, @Param("localDateFim") LocalDate localDateFim);
 
 }

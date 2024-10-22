@@ -19,16 +19,16 @@ import clinina.vet.api.produto.*;
 import clinina.vet.api.sabor.DadosCadastroSabor;
 import clinina.vet.api.sabor.SaborRepository;
 import clinina.vet.api.sabor.SaborService;
-import clinina.vet.api.venda.DadosItensVendidos;
-import clinina.vet.api.venda.LinhaDoTempoDTO;
-import clinina.vet.api.venda.Venda;
-import clinina.vet.api.venda.VendaRepository;
+import clinina.vet.api.venda.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -233,20 +233,56 @@ public class ProdutoController {
         fornecedorService.salvarFornecedor(dados);
     }
 
-    @GetMapping("/relatorio")
-    public List<DadosItensVendidos> pegarListaDeItensVendidos(@RequestParam int start_dia,
-                                                              @RequestParam int start_mes,
-                                                              @RequestParam int start_ano,
-                                                              @RequestParam int end_dia,
-                                                              @RequestParam int end_mes,
-                                                              @RequestParam int end_ano){
+//    @GetMapping("/relatorio")
+//    public List<DadosItensVendidos> pegarListaDeItensVendidos(@RequestParam int start_dia,
+//                                                              @RequestParam int start_mes,
+//                                                              @RequestParam int start_ano,
+//                                                              @RequestParam int end_dia,
+//                                                              @RequestParam int end_mes,
+//                                                              @RequestParam int end_ano){
+@GetMapping("/relatorio")
+public RelatorioDTO pegarListaDeItensVendidos(@RequestParam int start_dia,
+                                                          @RequestParam int start_mes,
+                                                          @RequestParam int start_ano,
+                                                          @RequestParam int end_dia,
+                                                          @RequestParam int end_mes,
+                                                          @RequestParam int end_ano){
         //Verificar se a segunda data não foi escolhidaa
         if (end_dia == 0 || end_mes == 0 || end_ano == 0) {
             end_dia = start_dia;
             end_mes = start_mes;
             end_ano = start_ano;
         }
-        return vendaRepository.buscarItensVendidos(start_dia, start_mes, start_ano, end_dia, end_mes, end_ano);
+
+        //Parte do Grafico
+        List<Object[]> resultados = vendaRepository.totalVendasPorDiaNoMesGrafico(start_mes, start_ano);
+        List<GraficoDTO> grafico = resultados.stream()
+                .map(obj -> new GraficoDTO((Date) obj[0], ((BigDecimal) obj[1]).doubleValue()))
+                .toList();
+        //List<GraficoDTO> grafico = this.vendaRepository.totalVendasPorDiaNoMesGrafico(start_mes, start_ano);
+        List<Double> listaTotalVendas = new ArrayList<>();
+        YearMonth anoMes = YearMonth.of(start_ano, start_mes);
+        int diasNoMes = anoMes.lengthOfMonth();
+        for (int i = 1; i <= diasNoMes; i++) {
+            GraficoDTO g = grafico.get(i - 1);// Corrigindo o índice para começar do zero
+            LocalDate localDate = g.data().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            int numeroDia = localDate.getDayOfMonth();
+            if (numeroDia == i) {
+                listaTotalVendas.add(g.total_vendas());
+            } else {
+                listaTotalVendas.add(0d);
+            }
+        }
+        for (int i = 0; i < grafico.size(); i++) {
+            System.out.println("Dia " + (i + 1) + " Valor: " + grafico.get(i).total_vendas() + " Data " + grafico.get(i).data());
+        }
+        for (int i = 0; i < listaTotalVendas.size(); i++) {
+            //System.out.println("Dia " + (i + 1) + " Valor: " + listaTotalVendas.get(i));
+        }
+        //Fim parte do Grafico
+
+        //return vendaRepository.buscarItensVendidos(start_dia, start_mes, start_ano, end_dia, end_mes, end_ano);
+        return new RelatorioDTO(listaTotalVendas, vendaRepository.buscarItensVendidos(start_dia, start_mes, start_ano, end_dia, end_mes, end_ano));
     }
 
     @GetMapping("/relatorio-fiado")

@@ -86,16 +86,37 @@ public class LancamentoService {
 
         CategoriasDTO categorias = this.getCategorias();
 
+        // Total de vendas a partir de outubro, se colocar para alugar, setar pra false
+        boolean alugar = true;
+        String dataInicial = "2024-01-01";
+        if (alugar) {
+            dataInicial = "2024-10-01";
+        }
+        Double totalVendasDiarias = 0d;
+        Double totalVendasDiariasAteData = 0d;
+        Double totalReceitasPeriodo = 0d;
+        Double totalDespesasPeriodo = 0d;
+        Double somaTotalVendasPeriodo = 0d;
+        List<Object[]> somaTotalVendasTotalVendasMenorQueHoje = this.vendaRepository.somaTotalVendasTotalVendasMenorQueHoje(dataInicial, localDateFim);
+        if (somaTotalVendasTotalVendasMenorQueHoje != null && !somaTotalVendasTotalVendasMenorQueHoje.isEmpty()){
+            Object[] row = somaTotalVendasTotalVendasMenorQueHoje.get(0);
+            if (row[0] != null && row[1] != null && row[2] != null) {
+                totalVendasDiarias = ((Number) row[0]).doubleValue();
+                totalVendasDiariasAteData = ((Number) row[1]).doubleValue();
+                somaTotalVendasPeriodo = ((Number) row[2]).doubleValue();
+            }
+        }
+
         double projecaoSaldo = 0;
         double saldoAtual = 0;
         double saldoAnterior = 0;
         double aPagar = 0;
         double aReceber = 0;
-        List<Object[]>  somaReceitasDespesas = this.lancamentoRepository.getLancamentoSums(localDateInicio);
+        List<Object[]>  somaReceitasDespesas = this.lancamentoRepository.getLancamentoSums(localDateInicio, localDateFim);
         if (somaReceitasDespesas != null && !somaReceitasDespesas.isEmpty()) {
             Object[] row = somaReceitasDespesas.get(0);
             if (row[0] != null && row[1] != null && row[2] != null && row[3] != null && row[4] != null
-                    && row[5] != null && row[6] != null && row[7] != null ) {
+                    && row[5] != null && row[6] != null && row[7] != null && row[8] != null && row[9] != null) {
                 Double totalDespesas = ((Number) row[0]).doubleValue();
                 Double totalReceitas = ((Number) row[1]).doubleValue();
                 Double totalDespesasPeriodoAnterior = ((Number) row[2]).doubleValue();
@@ -104,9 +125,11 @@ public class LancamentoService {
                 Double totalReceitasSaldoAtual = ((Number) row[5]).doubleValue();
                 Double totalDespesasAPagar = ((Number) row[6]).doubleValue();
                 Double totalReceitasSAReceber = ((Number) row[7]).doubleValue();
+                totalReceitasPeriodo = ((Number) row[8]).doubleValue();
+                totalDespesasPeriodo = ((Number) row[9]).doubleValue();
 
-                projecaoSaldo = totalReceitas - totalDespesas;
-                saldoAtual = totalReceitasSaldoAtual - totalDespesasSaldoAtual;
+                projecaoSaldo = totalReceitas + totalVendasDiarias - totalDespesas;
+                saldoAtual = totalReceitasSaldoAtual + totalVendasDiariasAteData - totalDespesasSaldoAtual;
                 saldoAnterior = totalReceitasPeriodoAnterior - totalDespesasPeriodoAnterior;
                 aPagar = totalDespesasAPagar;
                 aReceber = totalReceitasSAReceber;
@@ -161,7 +184,7 @@ public class LancamentoService {
         int qtdLancDespesa = 0;
         for (LancamentosDTO lancamento : lancamentosMutavel) {
 
-            //Contar quantos lancamentos por tem por categoria
+            //Contar quantos lancamentos tem por categoria
             String categoria = lancamento.categoriaNome();
             if (lancamento.tipoReceita().equals("receita")) {
                 contagemPorCategoriaReceita.put(categoria, contagemPorCategoriaReceita.getOrDefault(categoria, 0) + 1);
@@ -330,8 +353,14 @@ public class LancamentoService {
             }
         }
 
+        System.out.println("total vendas: " + totalVendasDiarias);
+        System.out.println("Total vendas ate data: " + totalVendasDiariasAteData);
 
-        PaginaLancamentosDTO paginaLancamento = new PaginaLancamentosDTO(aReceber,aPagar,projecaoSaldo, saldoAnterior, saldoAtual, listaLancamentos, listasPorcentagemCategorias, new Date());
+        totalReceitasPeriodo += somaTotalVendasPeriodo;
+
+
+
+        PaginaLancamentosDTO paginaLancamento = new PaginaLancamentosDTO(aReceber,aPagar,projecaoSaldo, saldoAnterior, saldoAtual, listaLancamentos, listasPorcentagemCategorias, new Date(), totalReceitasPeriodo, totalDespesasPeriodo);
 
         return paginaLancamento;
     }

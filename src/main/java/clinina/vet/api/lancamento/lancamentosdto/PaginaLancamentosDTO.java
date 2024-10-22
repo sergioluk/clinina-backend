@@ -11,6 +11,8 @@ public record PaginaLancamentosDTO(
         double saldoAtual,
         List<ListaLancamentosDTO> listaLancamentos,
         ListasPorcentagemCategoriasDTO listasPorcentagemCategorias,
-        Date atualizadoEm
+        Date atualizadoEm,
+        double totalReceitasPeriodo,
+        double totalDespesasPeriodo
 ) {
 }

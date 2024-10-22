@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 public interface VendaRepository extends JpaRepository<Venda, Long> {
     //@Query(value = "SELECT v.id, p.imagemP, p.produto, v.quantidade, v.preco_unitario as precoUnitario, v.preco_total as PrecoTotal, v.data FROM vendas v JOIN produtos p ON v.produto_id = p.id;", nativeQuery = true)
@@ -33,5 +34,22 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
 
     @Query(value = "SELECT v.data, SUM(v.preco_total) FROM vendas v WHERE DATE(v.data) >= CONCAT(:start_ano, '-', :start_mes, '-', :start_dia, ' 00:00:00') AND DATE(v.data) <= CONCAT(:end_ano, '-', :end_mes, '-', :end_dia, ' 23:59:59') GROUP BY DATE(v.data) ORDER BY DATE(v.data) DESC", nativeQuery = true)
     List<Object[]> vendasDataTotal(@Param("start_dia") int start_dia, @Param("start_mes") int start_mes, @Param("start_ano") int start_ano, @Param("end_dia") int end_dia, @Param("end_mes") int end_mes, @Param("end_ano") int end_ano);
+
+    @Query(value = "SELECT SUM(preco_total) FROM vendas WHERE data >= :dataInicial", nativeQuery = true)
+    Double somaTotalVendas(@Param("dataInicial") String dataInicial);
+
+    @Query(value = "SELECT " +
+            "SUM(CASE WHEN v.data >= :dataInicial THEN v.preco_total ELSE 0 END) AS somaTotalVendas, " +
+            "SUM(CASE WHEN v.data <= CURRENT_DATE() AND v.data >= :dataInicial THEN v.preco_total ELSE 0 END) AS somaTotalVendasAteData, " +
+            "SUM(CASE WHEN v.data <= :localDateFim AND v.data >= :dataInicial THEN v.preco_total ELSE 0 END) AS somaTotalVendasPeriodo " +
+            "FROM vendas v;" , nativeQuery = true)
+    List<Object[]> somaTotalVendasTotalVendasMenorQueHoje(@Param("dataInicial") String dataInicial, @Param("localDateFim") LocalDate localDateFim);
+
+    @Query(value = "SELECT DATE(v.data), SUM(v.preco_total) as valor " +
+            "FROM vendas v " +
+            "WHERE MONTH(v.data) = :mes " +
+            "AND YEAR(v.data) = :ano " +
+            "GROUP BY DATE(v.data)", nativeQuery = true)
+    List<Object[]> totalVendasPorDiaNoMesGrafico(@Param("mes") int mes, @Param("ano") int ano);
 
 }
