@@ -30,6 +30,9 @@ public class Venda {
     private Long iddevenda;
     private Double desconto;
 
+    @Column(name = "id_cliente")
+    private Long idCliente;
+
     //Esse @Transient é para avisar pro spring ignorar esse campo pq não é uma coluna, é só pra usar esses dados mesmo
     @Transient
     private String nome;

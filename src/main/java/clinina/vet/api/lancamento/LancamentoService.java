@@ -543,4 +543,12 @@ public class LancamentoService {
         }
         return nomeCategoria;
     }
+
+    public CadastroLancamentoDTO findLancamento(long id) {
+        Lancamento l = new Lancamento();
+        Optional<Lancamento> lancOpt = this.lancamentoRepository.findById(id);
+        if (lancOpt.isPresent())
+            l = lancOpt.get();
+        return new CadastroLancamentoDTO(l);
+    }
 }

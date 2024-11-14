@@ -48,6 +48,7 @@ public class VendaController {
             System.out.println("data: " + dados.get(i).getData());
             System.out.println("peso: " + dados.get(i).getPeso());
             System.out.println("pagamento: " + dados.get(i).getPagamento());
+            System.out.println("id cliente: " + dados.get(i).getIdCliente());
 
             System.out.println("nome: " + dados.get(i).getNome());
             System.out.println("telefone: " + dados.get(i).getTelefone());
@@ -68,7 +69,9 @@ public class VendaController {
             v.setPagamento(dados.get(i).getPagamento());
             v.setIddevenda(idDeVenda);
             v.setDesconto(dados.get(i).getDesconto());
-            repository.save(v);
+            v.setIdCliente(dados.get(i).getIdCliente());
+            Venda vendaSalva =  repository.save(v);
+            System.out.println("Id cliente salvo no banco: "+ vendaSalva.getIdCliente());
             //Parte para diminuir quantidade no estoque
             Produto p = this.produtoRepository.getReferenceById(dados.get(i).getProduto_id());
             if (p != null) {
