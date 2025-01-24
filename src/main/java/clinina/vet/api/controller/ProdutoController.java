@@ -19,6 +19,8 @@ import clinina.vet.api.produto.*;
 import clinina.vet.api.sabor.DadosCadastroSabor;
 import clinina.vet.api.sabor.SaborRepository;
 import clinina.vet.api.sabor.SaborService;
+import clinina.vet.api.vencimentos.Vencimento;
+import clinina.vet.api.vencimentos.VencimentoService;
 import clinina.vet.api.venda.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +67,9 @@ public class ProdutoController {
     private SaborService saborService;
     @Autowired
     private FornecedorService fornecedorService;
+
+    @Autowired
+    private VencimentoService vencimentoService;
 
     /*
     @GetMapping
@@ -143,6 +148,13 @@ public class ProdutoController {
             produto.setPrecoCompra(dados.precoCompra());
             produto.setPreco(dados.preco());
             produto.setEstoque(dados.estoque());
+
+            Vencimento vencimento = vencimentoService.buscarPorIdProduto(produto.getId());
+            if (vencimento != null) {
+                vencimento.setDataFabricacao(dados.dataFabricacao());
+                vencimento.setDataVencimento(dados.dataVencimento());
+                vencimentoService.salvar(vencimento); // Atualiza o vencimento no banco
+            }
         }
     }
 
