@@ -161,7 +161,11 @@ public class ProdutoController {
                 vencimentoService.salvar(vencimento); // Atualiza o vencimento no banco
                 System.out.println("Vencimento alterado");
             } else {
+                // Se o vencimento não existe, cria um novo
+                vencimento = new Vencimento();
                 vencimento.setIdProduto(produto.getId());
+                vencimento.setDataFabricacao(dados.dataFabricacao());
+                vencimento.setDataVencimento(dados.dataVencimento());
                 vencimentoService.salvar(vencimento);
                 System.out.println("Vencimento criado ao alterar produto");
             }
