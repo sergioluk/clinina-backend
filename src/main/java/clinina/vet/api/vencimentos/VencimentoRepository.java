@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface VencimentoRepository extends JpaRepository<Vencimento, Long> {
     Optional<Vencimento> findByIdProduto(Long idProduto);
+    Vencimento findFirstByIdProdutoOrderByDataVencimentoDesc(Long idProduto);
 }

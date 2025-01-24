@@ -4,7 +4,9 @@ import clinina.vet.api.Idade.Idade;
 import clinina.vet.api.categoria.Categoria;
 import clinina.vet.api.fornecedor.Fornecedor;
 import clinina.vet.api.sabor.Sabor;
+import clinina.vet.api.vencimentos.Vencimento;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public record ProdutosDTO(
@@ -21,10 +23,15 @@ public record ProdutosDTO(
         Fornecedor fornecedor,
         int estoque,
         String imagemP,
-        Double precoCompra
+        Double precoCompra,
+
+        LocalDate dataFabricacao, // Novo campo
+        LocalDate dataVencimento  // Novo campo
+
 ) {
-    public ProdutosDTO(Produto produto){
-        this(produto.getCodigoDeBarras(),
+    public ProdutosDTO(Produto produto, Vencimento vencimento){
+        this(
+                produto.getCodigoDeBarras(),
                 produto.getCategoria(),
                 produto.getProduto(),
                 produto.getSabor(),
@@ -37,7 +44,10 @@ public record ProdutosDTO(
                 produto.getFornecedor(),
                 produto.getEstoque(),
                 produto.getImagemP(),
-                produto.getPrecoCompra());
+                produto.getPrecoCompra(),
+                vencimento != null ? vencimento.getDataFabricacao() : null, // Se vencimento não for nulo
+                vencimento != null ? vencimento.getDataVencimento() : null  // Se vencimento não for nulo
+        );
     }
 
 }
