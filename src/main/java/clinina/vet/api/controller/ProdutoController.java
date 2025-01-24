@@ -154,15 +154,17 @@ public class ProdutoController {
             produto.setPreco(dados.preco());
             produto.setEstoque(dados.estoque());
 
+            try {
             Vencimento vencimento = vencimentoService.buscarPorIdProduto(produto.getId());
-            if (vencimento != null) {
+//            if (vencimento != null) {
                 vencimento.setDataFabricacao(dados.dataFabricacao());
                 vencimento.setDataVencimento(dados.dataVencimento());
                 vencimentoService.salvar(vencimento); // Atualiza o vencimento no banco
                 System.out.println("Vencimento alterado");
-            } else {
+            } catch (RuntimeException e) {
                 // Se o vencimento não existe, cria um novo
-                vencimento = new Vencimento();
+                Vencimento vencimento = new Vencimento();
+
                 vencimento.setIdProduto(produto.getId());
                 vencimento.setDataFabricacao(dados.dataFabricacao());
                 vencimento.setDataVencimento(dados.dataVencimento());
