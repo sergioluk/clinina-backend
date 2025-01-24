@@ -112,6 +112,7 @@ public class ProdutoController {
         repository.save(new Produto(dados));
          */
         produtoService.salvarProduto(dados);
+        System.out.println("Datas: " + dados.dataFabricacao() + " vencimento: " + dados.dataVencimento());
     }
 
     /*

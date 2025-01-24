@@ -83,7 +83,8 @@ public class ProdutoService {
         vencimento.setIdProduto(produtoSalvo.getId());
         vencimento.setDataVencimento(dados.dataVencimento());
         vencimento.setDataFabricacao(dados.dataFabricacao());
-        this.vencimentoService.salvar(vencimento);
+        Vencimento vencimentoSalvo = this.vencimentoService.salvar(vencimento);
+        System.out.println("Vencimento salvo id: " + vencimentoSalvo.getId());
     }
 
     public List<LinhaDoTempoDTO> linhaDoTempoTodos(Long produtoId) {
