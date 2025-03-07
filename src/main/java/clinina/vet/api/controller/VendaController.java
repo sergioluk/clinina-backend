@@ -29,7 +29,7 @@ public class VendaController {
 
     @PostMapping
     @Transactional
-    public void cadastrarProduto(@RequestBody List<Venda> dados){
+    public Long cadastrarProduto(@RequestBody List<Venda> dados){
         Long maiorIdDeVenda = fiadoRepository.encontrarMaiorIdVenda();
         Long idDeVenda = 0L;
         if (maiorIdDeVenda == null) {
@@ -92,9 +92,7 @@ public class VendaController {
             f.setVendaId(idDeVenda);
             fiadoRepository.save(f);
         }
-
-
-
+    return idDeVenda;
     }
 
     @GetMapping("/nome/{nome}")
