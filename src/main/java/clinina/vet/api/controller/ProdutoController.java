@@ -19,6 +19,9 @@ import clinina.vet.api.produto.*;
 import clinina.vet.api.sabor.DadosCadastroSabor;
 import clinina.vet.api.sabor.SaborRepository;
 import clinina.vet.api.sabor.SaborService;
+import clinina.vet.api.vencimentos.Vencimento;
+import clinina.vet.api.vencimentos.VencimentoRepository;
+import clinina.vet.api.vencimentos.VencimentoService;
 import clinina.vet.api.venda.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +69,12 @@ public class ProdutoController {
     @Autowired
     private FornecedorService fornecedorService;
 
+    @Autowired
+    private VencimentoService vencimentoService;
+
+    @Autowired
+    private VencimentoRepository vencimentoRepository;
+
     /*
     @GetMapping
     public String lala(){
@@ -107,6 +116,7 @@ public class ProdutoController {
         repository.save(new Produto(dados));
          */
         produtoService.salvarProduto(dados);
+        System.out.println("Datas: " + dados.dataFabricacao() + " vencimento: " + dados.dataVencimento());
     }
 
     /*
@@ -143,6 +153,24 @@ public class ProdutoController {
             produto.setPrecoCompra(dados.precoCompra());
             produto.setPreco(dados.preco());
             produto.setEstoque(dados.estoque());
+
+            try {
+            Vencimento vencimento = vencimentoService.buscarPorIdProduto(produto.getId());
+//            if (vencimento != null) {
+                vencimento.setDataFabricacao(dados.dataFabricacao());
+                vencimento.setDataVencimento(dados.dataVencimento());
+                vencimentoService.salvar(vencimento); // Atualiza o vencimento no banco
+                System.out.println("Vencimento alterado");
+            } catch (RuntimeException e) {
+                // Se o vencimento não existe, cria um novo
+                Vencimento vencimento = new Vencimento();
+
+                vencimento.setIdProduto(produto.getId());
+                vencimento.setDataFabricacao(dados.dataFabricacao());
+                vencimento.setDataVencimento(dados.dataVencimento());
+                vencimentoService.salvar(vencimento);
+                System.out.println("Vencimento criado ao alterar produto");
+            }
         }
     }
 
@@ -153,15 +181,36 @@ public class ProdutoController {
 
     @GetMapping("/encontrar/{nome}")
     public List<ProdutosDTO> findByName(@PathVariable String nome) {
-        //return repository.searchByNomeOrCodigoBarras(nome).stream().map(ProdutosDTO::new).toList();
 
-        List<ProdutosDTO> produtosPorNome = repository.findByProdutoContainingIgnoreCase(nome).stream().map(ProdutosDTO::new).toList();
-        List<ProdutosDTO> produtosPorCodigoDeBarras = repository.findByCodigoDeBarrasContainingIgnoreCase(nome).stream().map(ProdutosDTO::new).toList();
+        //List<ProdutosDTO> produtosPorNome = repository.findByProdutoContainingIgnoreCase(nome).stream().map(ProdutosDTO::new).toList();
+        //List<ProdutosDTO> produtosPorCodigoDeBarras = repository.findByCodigoDeBarrasContainingIgnoreCase(nome).stream().map(ProdutosDTO::new).toList();
 
-        //List<Produto> produtosPorNome = repository.findByProdutoContainingIgnoreCase(nome);
-        //List<Produto> produtosPorCodigoDeBarras = repository.findByCodigoDeBarrasContainingIgnoreCase(nome);
+        //return Stream.concat(produtosPorNome.stream(), produtosPorCodigoDeBarras.stream()).distinct().collect(Collectors.toList());
 
-        return Stream.concat(produtosPorNome.stream(), produtosPorCodigoDeBarras.stream()).distinct().collect(Collectors.toList());
+        // Busca os produtos por nome ou código de barras
+        List<Produto> produtosPorNome = repository.findByProdutoContainingIgnoreCase(nome);
+        List<Produto> produtosPorCodigoDeBarras = repository.findByCodigoDeBarrasContainingIgnoreCase(nome);
+
+        // Combina as duas listas e remove duplicatas
+        List<Produto> produtos = Stream.concat(produtosPorNome.stream(), produtosPorCodigoDeBarras.stream())
+                .distinct()
+                .toList();
+
+        // Converte os produtos para DTO, incluindo apenas os dados necessários do vencimento
+        return produtos.stream()
+                .map(produto -> {
+                    //Vencimento ultimoVencimento = vencimentoRepository.findFirstByIdProdutoOrderByDataVencimentoDesc(produto.getId()).orElse(null);
+                    //return new ProdutosDTO(produto, ultimoVencimento);
+                    // Verifique se a consulta retorna Optional corretamente
+                    Optional<Vencimento> ultimoVencimentoOpt = Optional.ofNullable(vencimentoRepository.findFirstByIdProdutoOrderByDataVencimentoDesc(produto.getId()));
+
+                    // Use orElse para fornecer um valor padrão, caso o Optional esteja vazio
+                    Vencimento ultimoVencimento = ultimoVencimentoOpt.orElse(null);
+
+                    // Crie o DTO com o produto e o vencimento
+                    return new ProdutosDTO(produto, ultimoVencimento);
+                })
+                .toList();
     }
 
     @GetMapping("/codigo-de-barras/editar/{codigoDeBarras}")

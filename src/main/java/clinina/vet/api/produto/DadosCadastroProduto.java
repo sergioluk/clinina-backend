@@ -9,6 +9,7 @@ import clinina.vet.api.informacoes.Informacao;
 import clinina.vet.api.sabor.Sabor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public record DadosCadastroProduto(
@@ -28,7 +29,11 @@ public record DadosCadastroProduto(
         Fornecedor fornecedor,
         int estoque,
         String imagemP,
-        Double precoCompra
+        Double precoCompra,
+
+        LocalDate dataVencimento,
+
+        LocalDate dataFabricacao
 ) {
 
 

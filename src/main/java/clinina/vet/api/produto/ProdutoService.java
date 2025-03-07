@@ -3,6 +3,8 @@ package clinina.vet.api.produto;
 import clinina.vet.api.imagens.Imagem;
 import clinina.vet.api.imagens.ImagemRepository;
 import clinina.vet.api.informacoes.Informacao;
+import clinina.vet.api.vencimentos.Vencimento;
+import clinina.vet.api.vencimentos.VencimentoService;
 import clinina.vet.api.venda.LinhaDoTempoDTO;
 import clinina.vet.api.venda.VendaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class ProdutoService {
 
     @Autowired
     private VendaRepository vendaRepository;
+
+    @Autowired
+    private VencimentoService vencimentoService;
 
     @Transactional
     public void salvarProduto(DadosCadastroProduto dados) {
@@ -70,7 +75,16 @@ public class ProdutoService {
         }
         produto.setPorte(porteTemp);
 
-        produtoRepository.save(produto);
+
+
+        Produto produtoSalvo = produtoRepository.save(produto);
+
+        Vencimento vencimento = new Vencimento();
+        vencimento.setIdProduto(produtoSalvo.getId());
+        vencimento.setDataVencimento(dados.dataVencimento());
+        vencimento.setDataFabricacao(dados.dataFabricacao());
+        Vencimento vencimentoSalvo = this.vencimentoService.salvar(vencimento);
+        System.out.println("Vencimento salvo id: " + vencimentoSalvo.getId());
     }
 
     public List<LinhaDoTempoDTO> linhaDoTempoTodos(Long produtoId) {
