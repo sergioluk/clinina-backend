@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -99,5 +102,44 @@ public class ProdutoService {
 //        System.out.println("Ano Hoje: " + hoje.getYear());
         return this.vendaRepository.listaLinhaDoTempoComParam(produtoId,dias).stream().map(LinhaDoTempoDTO::new).toList();
     }
+
+    public List<ProdutoEstoqueDTO> listarProdutosComFiltros(
+            boolean codigoDeBarras, boolean produto, boolean categoria, boolean imagens,
+            boolean sabor, boolean idade, boolean preco, boolean peso, boolean desconto,
+            boolean animal, boolean castrado, boolean porte, boolean precoCompra,
+            boolean fornecedor, boolean estoque, boolean imagemP, boolean dataVencimento
+    ) {
+        List<Object[]> resultados = produtoRepository.buscarProdutosSQL(
+                codigoDeBarras ? 1 : 0, produto ? 1 : 0, categoria ? 1 : 0, imagens ? 1 : 0,
+                sabor ? 1 : 0, idade ? 1 : 0, preco ? 1 : 0, peso ? 1 : 0, desconto ? 1 : 0,
+                animal ? 1 : 0, castrado ? 1 : 0, porte ? 1 : 0, precoCompra ? 1 : 0,
+                fornecedor ? 1 : 0, estoque ? 1 : 0, imagemP ? 1 : 0, dataVencimento ? 1 : 0
+        );
+
+        return resultados.stream().map(obj -> new ProdutoEstoqueDTO(
+                (Long) obj[0],                           // id
+                (String) obj[1],                         // codigoDeBarras
+                (String) obj[2],                         // produto (deve ser renomeado para nome no DTO)
+                String.valueOf(obj[3]),                  // categoria (correção do erro de Long para String)
+                Collections.singletonList((String) obj[4]), // url imagem
+                (String) obj[5],                         // sabor
+                (String) obj[6],                         // idade
+                (obj[7] != null) ? ((BigDecimal) obj[7]).doubleValue() : 0.0,  // preco (corrigido de Double para BigDecimal)
+                (String) obj[8],                         // peso
+                (obj[9] != null) ? ((BigDecimal) obj[9]).doubleValue() : 0.0,  // desconto (corrigido)
+                (String) obj[10],                        // animal
+                (obj[11] != null) ? (Integer) obj[11] : 0, // castrado
+                (String) obj[12],                        // porte
+                (obj[13] != null) ? ((BigDecimal) obj[13]).doubleValue() : 0.0, // precoCompra (corrigido)
+                (String) obj[14],                        // fornecedor
+                (obj[15] != null) ? ((Number) obj[15]).intValue() : 0, // estoque
+                (String) obj[16],                        // imagemP
+                (obj[17] != null) ? ((Timestamp) obj[17]).toLocalDateTime().toLocalDate() : null // dataVencimento corrigido
+        )).toList();
+
+
+
+    }
+
 
 }

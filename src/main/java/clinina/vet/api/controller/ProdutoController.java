@@ -88,6 +88,34 @@ public class ProdutoController {
         //return repository.findAll().stream().map(DadosListagemProduto::new).toList();
         return null;
     }
+
+    @GetMapping("/listar")
+    public ResponseEntity<List<ProdutoEstoqueDTO>> listarProdutos(
+            @RequestParam(defaultValue = "false") boolean codigoDeBarras,
+            @RequestParam(defaultValue = "false") boolean produto,
+            @RequestParam(defaultValue = "false") boolean categoria,
+            @RequestParam(defaultValue = "false") boolean imagens,
+            @RequestParam(defaultValue = "false") boolean sabor,
+            @RequestParam(defaultValue = "false") boolean idade,
+            @RequestParam(defaultValue = "false") boolean preco,
+            @RequestParam(defaultValue = "false") boolean peso,
+            @RequestParam(defaultValue = "false") boolean desconto,
+            @RequestParam(defaultValue = "false") boolean animal,
+            @RequestParam(defaultValue = "false") boolean castrado,
+            @RequestParam(defaultValue = "false") boolean porte,
+            @RequestParam(defaultValue = "false") boolean precoCompra,
+            @RequestParam(defaultValue = "false") boolean fornecedor,
+            @RequestParam(defaultValue = "false") boolean estoque,
+            @RequestParam(defaultValue = "false") boolean imagemP,
+            @RequestParam(defaultValue = "false") boolean dataVencimento
+    ) {
+        var produtos = produtoService.listarProdutosComFiltros(
+                codigoDeBarras, produto, categoria, imagens, sabor, idade, preco, peso,
+                desconto, animal, castrado, porte, precoCompra, fornecedor, estoque, imagemP, dataVencimento
+        );
+        return ResponseEntity.ok(produtos);
+    }
+
 /*
     @GetMapping
     public Optional<Produto> listar(){
