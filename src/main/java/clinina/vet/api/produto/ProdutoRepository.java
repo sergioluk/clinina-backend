@@ -37,9 +37,9 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
         CASE WHEN :estoque = 1 THEN p.estoque ELSE NULL END,
         CASE WHEN :imagemP = 1 THEN p.imagemP ELSE NULL END,
         CASE WHEN :dataVencimento = 1 THEN v.data_vencimento ELSE NULL END
-    FROM Produtos p
-    LEFT JOIN Vencimentos v ON p.id = v.id_produto
-    LEFT JOIN Imagens i ON i.produto_id = p.id
+    FROM produtos p
+    LEFT JOIN vencimentos v ON p.id = v.id_produto
+    LEFT JOIN imagens i ON i.produto_id = p.id
     ORDER BY v.data_vencimento IS NULL, v.data_vencimento ASC
     """, nativeQuery = true)
     List<Object[]> buscarProdutosSQL(
