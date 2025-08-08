@@ -1,22 +1,22 @@
 package clinina.vet.api.controller;
 
 import clinina.vet.api.animais.Animais;
+import clinina.vet.api.dto.TutorDTO;
+import clinina.vet.api.mapper.TutorMapper;
+import clinina.vet.api.model.Tutor;
+import clinina.vet.api.service.TutorService;
 import clinina.vet.api.tutor.AlterarTutorDTO;
-import clinina.vet.api.tutor.Tutor;
-import clinina.vet.api.tutor.TutorDTO;
-import clinina.vet.api.tutor.TutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("banho-e-tosa/tutor")
+@RequestMapping("/banho-e-tosa/tutor")
 public class TutorController {
-
+    /*
     @Autowired
     private TutorService tutorService;
 
@@ -81,4 +81,45 @@ public class TutorController {
 
         return ResponseEntity.ok(tutor);
     }
+
+    */
+
+
+
+
+
+
+    @Autowired
+    private TutorService tutorServiceNovo;
+    @Autowired
+    private TutorMapper tutorMapper;
+
+    @PostMapping
+    public TutorDTO criar(@RequestBody TutorDTO dto) {
+       Tutor tutor = tutorMapper.toEntity(dto);
+       Tutor salvo = tutorServiceNovo.salvar(tutor);
+       return tutorMapper.toDTO(salvo);
+    }
+
+    @GetMapping
+    public List<TutorDTO> listar() {
+        return tutorServiceNovo.listarTodos().stream().map(tutorMapper::toDTO).toList();
+    }
+
+    @GetMapping("/{id}")
+    public TutorDTO buscarPorId(@PathVariable Long id) {
+        return tutorMapper.toDTO(tutorServiceNovo.buscarPorId(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletar(@PathVariable Long id) {
+        tutorServiceNovo.deletar(id);
+    }
+
+    @PutMapping("/{id}")
+    public TutorDTO atualizar(@PathVariable Long id, @RequestBody TutorDTO dto) {
+        Tutor atualizado = tutorServiceNovo.atualizar(id, dto);
+        return tutorMapper.toDTO(atualizado);
+    }
+
 }

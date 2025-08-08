@@ -15,10 +15,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class TutorService {
+public class TutorService2 {
 
     @Autowired
-    private TutorRepository tutorRepository;
+    private TutorRepository2 tutorRepository2;
 
     @Autowired
     private EnderecoRepository enderecoRepository;
@@ -37,7 +37,7 @@ public class TutorService {
         tutor.setEndereco(savedEndereco);
 
         //Salvar tutor
-        Tutor savedTutor = tutorRepository.save(tutor);
+        Tutor savedTutor = tutorRepository2.save(tutor);
 
         //Salvar servicos
         if (tutor.getServicos() != null) {
@@ -59,12 +59,12 @@ public class TutorService {
     }
 
     public List<TutorDTO> listarTutores() {
-        return tutorRepository.findAll().stream().map(TutorDTO:: new).collect(Collectors.toList());
+        return tutorRepository2.findAll().stream().map(TutorDTO:: new).collect(Collectors.toList());
     }
 
     @Transactional
     public TutorDTO updateTutor(Long id, AlterarTutorDTO dto) {
-        Optional<Tutor> existingTutor = tutorRepository.findById(id);
+        Optional<Tutor> existingTutor = tutorRepository2.findById(id);
         if (existingTutor.isEmpty()) {
             return null;
         }
@@ -121,13 +121,13 @@ public class TutorService {
             }
         }
 
-        Tutor updatedTutor = tutorRepository.save(tutor);
+        Tutor updatedTutor = tutorRepository2.save(tutor);
 
         return new TutorDTO(updatedTutor);
     }
 
     public TutorDTO getTutorById(Long id) {
-        Optional<Tutor> tutor = tutorRepository.findById(id);
+        Optional<Tutor> tutor = tutorRepository2.findById(id);
         if (tutor.isEmpty()) {
             return null;
         }
