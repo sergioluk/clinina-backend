@@ -7,6 +7,7 @@ import clinina.vet.api.model.enums.Especie;
 import clinina.vet.api.model.enums.Sexo;
 import clinina.vet.api.model.enums.TamanhoAnimal;
 import clinina.vet.api.repository.AnimalRepository;
+import clinina.vet.api.repository.TutorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class AnimalService {
 
     @Autowired
     private AnimalRepository animalRepository;
+
+    @Autowired
+    private TutorRepository tutorRepository;
 
     public Animal salvar(Animal animal) {
         return animalRepository.save(animal);
