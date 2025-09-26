@@ -60,8 +60,11 @@ public class AnimalService {
         existente.setFoto(dto.foto());
 
         //Atualiza o tutor caso tenha sido alterado
-        Tutor tutor = new Tutor();
-        tutor.setId(dto.tutorId());
+        //Tutor tutor = new Tutor();
+        //tutor.setId(dto.tutorId());
+        //existente.setTutor(tutor);
+        Tutor tutor = tutorRepository.findById(dto.tutorId())
+            .orElseThrow(() -> new EntityNotFoundException("Tutor não encontrado com id: " + dto.tutorId()));
         existente.setTutor(tutor);
 
         return animalRepository.save(existente);
