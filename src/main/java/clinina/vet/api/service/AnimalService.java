@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class AnimalService {
                     (Long) a[0],
                     (String) a[1],
                     (String) a[2],
-                    ((Date) a[3]).toLocalDate(),
+                    a[3] != null ? ((Date) a[3]).toLocalDate() : null,
                     (String) a[4]
             )).toList();
 
@@ -97,7 +98,7 @@ public class AnimalService {
                 (String) a[2],
                 (String) a[3],
                 (String) a[4],
-                ((Date) a[5]).toLocalDate(),
+                (LocalDate) (a[5] != null ? ((Date) a[5]).toLocalDate() : null),
                 (String) a[6],
                 (String) a[7],
                 (String) a[8],
