@@ -29,6 +29,14 @@ public class AnimalService {
     private TutorRepository tutorRepository;
 
     public Animal salvar(Animal animal) {
+        //return animalRepository.save(animal);
+        Long tutorId = animal.getTutor().getId(); // pega o ID do tutor enviado no JSON
+
+        Tutor tutor = tutorRepository.findById(tutorId)
+            .orElseThrow(() -> new EntityNotFoundException("Tutor não encontrado com id: " + tutorId));
+
+        animal.setTutor(tutor); // substitui o objeto "não gerenciado" pelo objeto persistido
+
         return animalRepository.save(animal);
     }
 
