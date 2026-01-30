@@ -7,6 +7,7 @@ import clinina.vet.api.model.enums.Especie;
 import clinina.vet.api.model.enums.Sexo;
 import clinina.vet.api.model.enums.TamanhoAnimal;
 import clinina.vet.api.repository.AnimalRepository;
+import clinina.vet.api.repository.TutorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,18 @@ public class AnimalService {
     @Autowired
     private AnimalRepository animalRepository;
 
+    @Autowired
+    private TutorRepository tutorRepository;
+
     public Animal salvar(Animal animal) {
+        //return animalRepository.save(animal);
+        Long tutorId = animal.getTutor().getId(); // pega o ID do tutor enviado no JSON
+
+        Tutor tutor = tutorRepository.findById(tutorId)
+            .orElseThrow(() -> new EntityNotFoundException("Tutor não encontrado com id: " + tutorId));
+
+        animal.setTutor(tutor); // substitui o objeto "não gerenciado" pelo objeto persistido
+
         return animalRepository.save(animal);
     }
 
@@ -60,8 +72,11 @@ public class AnimalService {
         existente.setFoto(dto.foto());
 
         //Atualiza o tutor caso tenha sido alterado
-        Tutor tutor = new Tutor();
-        tutor.setId(dto.tutorId());
+        //Tutor tutor = new Tutor();
+        //tutor.setId(dto.tutorId());
+        //existente.setTutor(tutor);
+        Tutor tutor = tutorRepository.findById(dto.tutorId())
+            .orElseThrow(() -> new EntityNotFoundException("Tutor não encontrado com id: " + dto.tutorId()));
         existente.setTutor(tutor);
 
         return animalRepository.save(existente);
