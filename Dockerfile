@@ -1,21 +1,16 @@
-# ===== BUILD =====
-FROM eclipse-temurin:17-jdk-jammy AS build
+FROM ubuntu:latest AS build
 
-WORKDIR /app
-
+RUN apt-get update
+RUN apt-get install openjdk-17-jdk -y
 COPY . .
 
-RUN ./mvnw clean package -DskipTests
+RUN apt-get install maven -y
+RUN mvn clean install
 
-
-
-
-FROM eclipse-temurin:17-jre-jammy
-
-WORKDIR /app
+FROM eclipse-temurin:17-jdk-jammy
 
 EXPOSE 8080
 
-COPY --from=build /app/target/api-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /target/api-0.0.1-SNAPSHOT.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT [ "java", "-jar", "app.jar" ]
