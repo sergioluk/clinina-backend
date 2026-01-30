@@ -90,8 +90,16 @@ public class LancamentoService {
         boolean alugar = true;
         String dataInicial = "2024-01-01";
         if (alugar) {
-            dataInicial = "2024-10-01";
+            LocalDate dataInicioRecebida = LocalDate.parse(dataInicio, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate dataMinimaAlugar = LocalDate.parse("2024-10-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            if (dataInicioRecebida.isBefore(dataMinimaAlugar)) {
+                dataInicial = "2024-10-01";
+            } else {
+                dataInicial = dataInicio;
+            }
         }
+
         Double totalVendasDiarias = 0d;
         Double totalVendasDiariasAteData = 0d;
         Double totalReceitasPeriodo = 0d;
@@ -355,10 +363,15 @@ public class LancamentoService {
 
         System.out.println("total vendas: " + totalVendasDiarias);
         System.out.println("Total vendas ate data: " + totalVendasDiariasAteData);
+        System.out.println("***********************************");
+        System.out.println("Receitas periodo (query): " + totalReceitasPeriodo);
+        System.out.println("Vendas somadas: " + somaTotalVendasPeriodo);
+        System.out.println("Inicio: " + localDateInicio + " | Fim: " + localDateFim);
+
 
         totalReceitasPeriodo += somaTotalVendasPeriodo;
 
-
+        System.out.println("Receitas periodo (query): " + totalReceitasPeriodo);
 
         PaginaLancamentosDTO paginaLancamento = new PaginaLancamentosDTO(aReceber,aPagar,projecaoSaldo, saldoAnterior, saldoAtual, listaLancamentos, listasPorcentagemCategorias, new Date(), totalReceitasPeriodo, totalDespesasPeriodo);
 
