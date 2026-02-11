@@ -13,6 +13,10 @@ public record PaginaLancamentosDTO(
         ListasPorcentagemCategoriasDTO listasPorcentagemCategorias,
         Date atualizadoEm,
         double totalReceitasPeriodo,
-        double totalDespesasPeriodo
+        double totalDespesasPeriodo,
+
+        double totalVendasBanhoETosa,
+        double totalVendasConsultorio,
+        double totalVendasLoja
 ) {
 }

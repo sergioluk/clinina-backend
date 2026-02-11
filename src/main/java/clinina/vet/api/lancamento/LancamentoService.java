@@ -6,6 +6,7 @@ import clinina.vet.api.lancamento.lancamentosdto.*;
 import clinina.vet.api.receita_categoria.CategoriasDTO;
 import clinina.vet.api.receita_categoria.ReceitaCategoriaDTO;
 import clinina.vet.api.receita_categoria.ReceitaCategoriaRepository;
+import clinina.vet.api.venda.Venda;
 import clinina.vet.api.venda.VendaRepository;
 import clinina.vet.api.venda.VendasDataTotalDTO;
 import jakarta.transaction.Transactional;
@@ -373,7 +374,34 @@ public class LancamentoService {
 
         System.out.println("Receitas periodo (query): " + totalReceitasPeriodo);
 
-        PaginaLancamentosDTO paginaLancamento = new PaginaLancamentosDTO(aReceber,aPagar,projecaoSaldo, saldoAnterior, saldoAtual, listaLancamentos, listasPorcentagemCategorias, new Date(), totalReceitasPeriodo, totalDespesasPeriodo);
+        //contagem do banho e tosa, consultorio e loja
+        List<Venda> vendas = vendaRepository.getVendasEntreData(
+                inicioDia, inicioMes, inicioAno,
+                fimDia, fimMes, fimAno
+        );
+        double totalVendasBanhoETosa = 0.0;
+        double totalVendasConsultorio = 0.0;
+        double totalVendasLoja = 0.0;
+        // ids do consultório
+        Set<Long> produtosConsultorio = Set.of(
+                447L, 682L, 731L, 960L, 961L, 986L, 525L
+        );
+        for (Venda v : vendas) {
+            Long produtoId = v.getProduto_id();
+            double valorVenda = v.getPrecoTotal() != null ? v.getPrecoTotal() : 0.0;
+
+            if (produtoId.equals(509L)) { // banho e tosa
+                totalVendasBanhoETosa += valorVenda;
+
+            } else if (produtosConsultorio.contains(produtoId)) { // consultório
+                totalVendasConsultorio += valorVenda;
+
+            } else { //loja
+                totalVendasLoja += valorVenda;
+            }
+        }
+
+        PaginaLancamentosDTO paginaLancamento = new PaginaLancamentosDTO(aReceber,aPagar,projecaoSaldo, saldoAnterior, saldoAtual, listaLancamentos, listasPorcentagemCategorias, new Date(), totalReceitasPeriodo, totalDespesasPeriodo, totalVendasBanhoETosa, totalVendasConsultorio, totalVendasLoja);
 
         return paginaLancamento;
     }

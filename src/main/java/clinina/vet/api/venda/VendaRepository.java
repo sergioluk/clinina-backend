@@ -52,4 +52,26 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
             "GROUP BY DATE(v.data)", nativeQuery = true)
     List<Object[]> totalVendasPorDiaNoMesGrafico(@Param("mes") int mes, @Param("ano") int ano);
 
+    @Query(value = """
+    SELECT *
+    FROM vendas
+    WHERE data >= STR_TO_DATE(
+        CONCAT(:inicioAno, '-', :inicioMes, '-', :inicioDia, ' 00:00:00'),
+        '%Y-%m-%d %H:%i:%s'
+    )
+    AND data <= STR_TO_DATE(
+        CONCAT(:fimAno, '-', :fimMes, '-', :fimDia, ' 23:59:59'),
+        '%Y-%m-%d %H:%i:%s'
+    )
+""", nativeQuery = true)
+    List<Venda> getVendasEntreData(
+            @Param("inicioDia") int inicioDia,
+            @Param("inicioMes") int inicioMes,
+            @Param("inicioAno") int inicioAno,
+            @Param("fimDia") int fimDia,
+            @Param("fimMes") int fimMes,
+            @Param("fimAno") int fimAno
+    );
+
+
 }
